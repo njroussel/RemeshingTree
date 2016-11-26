@@ -1,0 +1,36 @@
+/*
+    nanogui/imageview.cpp -- Widget used to display images.
+
+    The image view widget was contributed by Stefan Ivanov.
+
+    NanoGUI was developed by Wenzel Jakob <wenzel.jakob@epfl.ch>.
+    The widget drawing code is based on the NanoVG demo application
+    by Mikko Mononen.
+
+    All rights reserved. Use of this source code is governed by a
+    BSD-style license that can be found in the LICENSE.txt file.
+*/
+
+#include <nanogui/imageview.h>
+#include <nanogui/window.h>
+#include <nanogui/screen.h>
+#include <nanogui/theme.h>
+#include <cmath>
+
+NAMESPACE_BEGIN(nanogui)
+
+namespace {
+    std::vector<std::string> splitString(const std::string& text, const std::string& delimiter) {
+        using std::string; using std::vector;
+        vector<string> strings;
+        string::size_type current = 0;
+        string::size_type previous = 0;
+        while ((current = text.find(delimiter, previous)) != string::npos) {
+            strings.push_back(text.substr(previous, current - previous));
+            previous = current + 1;
+        }
+        strings.push_back(text.substr(previous));
+        return strings;
+    }
+
+    constexpr char const *const defaultImageViewVertexShader =
