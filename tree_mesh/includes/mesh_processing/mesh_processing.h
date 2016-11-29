@@ -14,6 +14,7 @@
 #define MESH_PROCESSING_H
 
 #include <surface_mesh/Surface_mesh.h>
+#include <surface_mesh/types.h>
 #include <Eigen/Sparse>
 
 typedef surface_mesh::Surface_mesh Mesh;
@@ -22,6 +23,14 @@ typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic> MatrixXu;
 namespace mesh_processing {
 
 using std::string;
+using surface_mesh::Point;
+using surface_mesh::Scalar;
+using surface_mesh::Color;
+using std::min;
+using std::max;
+using std::cout;
+using std::endl;
+
 enum REMESHING_TYPE : int { AVERAGE = 0, CURV = 1, HEIGHT = 2 };
 
 class MeshProcessing {
@@ -55,6 +64,10 @@ public:
     void calc_mean_curvature();
     void calc_uniform_mean_curvature();
     void calc_gauss_curvature();
+
+    /* Some operations on the mesh. */
+    surface_mesh::Vec3 laplacian_operator(Mesh::Vertex x);
+    surface_mesh::Vec3 laplace_beltrami_operator(Mesh::Vertex x, bool normalize);
 
 private:
     void calc_weights();

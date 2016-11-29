@@ -16,14 +16,6 @@
 
 namespace mesh_processing {
 
-    using surface_mesh::Point;
-    using surface_mesh::Scalar;
-    using surface_mesh::Color;
-    using std::min;
-    using std::max;
-    using std::cout;
-    using std::endl;
-
     using namespace surface_mesh;
 
     MeshProcessing::MeshProcessing(const string &filename) {
@@ -34,43 +26,43 @@ namespace mesh_processing {
         // TODO
     }
 
-    static Vec3 laplacian_operator(Surface_mesh &mesh, Surface_mesh::Vertex x) {
+    Vec3 MeshProcessing::laplacian_operator(Surface_mesh::Vertex x) {
         Surface_mesh::Vertex_around_vertex_circulator vc, vc_end;
-        vc = mesh.vertices(x);
+        vc = mesh_.vertices(x);
         vc_end = vc;
         Vec3 laplacian = Vec3(0, 0, 0);
         int N = 0;
 
-        Point x_position = mesh.position(x);
+        Point x_position = mesh_.position(x);
 
         do {
             N++;
             Surface_mesh::Vertex v = *vc;
-            laplacian += (mesh.position(v) - x_position);
+            laplacian += (mesh_.position(v) - x_position);
         } while (++vc != vc_end);
         return laplacian / N;
     }
 
-    static Vec3 laplace_beltrami_operator(Surface_mesh &mesh, Surface_mesh::Vertex x, bool normalize) {
-        Mesh::Edge_property <Scalar> e_weight = mesh.edge_property<Scalar>("e:weight", 0);
-        Mesh::Vertex_property <Scalar> v_weight = mesh.vertex_property<Scalar>("v:weight", 0);
+    Vec3 MeshProcessing::laplace_beltrami_operator(Surface_mesh::Vertex x, bool normalize) {
+        Mesh::Edge_property <Scalar> e_weight = mesh_.edge_property<Scalar>("e:weight", 0);
+        Mesh::Vertex_property <Scalar> v_weight = mesh_.vertex_property<Scalar>("v:weight", 0);
 
         Surface_mesh::Vertex_around_vertex_circulator vc, vc_end;
-        vc = mesh.vertices(x);
+        vc = mesh_.vertices(x);
         vc_end = vc;
 
         Vec3 laplace_beltrami = Vec3(0, 0, 0);
         float weight_sum = 0.0f;
 
         do {
-            Surface_mesh::Edge edge = mesh.find_edge(*vc, x);
+            Surface_mesh::Edge edge = mesh_.find_edge(*vc, x);
             if (edge == Surface_mesh::Edge()) {
                 throw std::string("Should not happen !");
             }
 
             float weight = e_weight[edge];
             weight_sum += weight;
-            laplace_beltrami += weight * (mesh.position(*vc) - mesh.position(x));
+            laplace_beltrami += weight * (mesh_.position(*vc) - mesh_.position(x));
         } while (++vc != vc_end);
 
         if (normalize) {
@@ -86,7 +78,7 @@ namespace mesh_processing {
                 mesh_.vertex_property<Scalar>("v:unicurvature", 0.0f);
         for (Mesh::Vertex x : mesh_.vertices()) {
             if (!mesh_.is_boundary(x)) {
-                Vec3 laplacian = laplacian_operator(mesh_, x);
+                Vec3 laplacian = laplacian_operator(x);
                 /* The curvature is approximated as the half length of the laplacian operator for x. */
                 v_unicurvature[x] = norm(laplacian) * 0.5f;
             }
@@ -98,7 +90,7 @@ namespace mesh_processing {
                 mesh_.vertex_property<Scalar>("v:curvature", 0.0f);
         for (Mesh::Vertex x : mesh_.vertices()) {
             if (!mesh_.is_boundary(x)) {
-                Vec3 laplace_beltrami = laplace_beltrami_operator(mesh_, x, false);
+                Vec3 laplace_beltrami = laplace_beltrami_operator(x, false);
                 /* The curvature is approximated as the half length of the laplace beltrami operator for x. */
                 v_curvature[x] = norm(laplace_beltrami) * 0.5f;
             }
@@ -182,7 +174,6 @@ namespace mesh_processing {
         }
     }
 
-    //TODO : calc_target_length
     void MeshProcessing::calc_target_length(const REMESHING_TYPE &remeshing_type) {
         Mesh::Vertex_iterator v_it, v_end(mesh_.vertices_end());
         Mesh::Vertex_around_vertex_circulator vv_c, vv_end;
@@ -288,7 +279,6 @@ namespace mesh_processing {
         }
     }
 
-    //TODO : split_long_edges()
     void MeshProcessing::split_long_edges() {
         Mesh::Edge_iterator e_it, e_end(mesh_.edges_end());
         Mesh::Vertex v0, v1, v;
@@ -338,7 +328,6 @@ namespace mesh_processing {
         }
     }
 
-    //TODO : collapse_short_edges
     void MeshProcessing::collapse_short_edges() {
         Mesh::Edge_iterator e_it, e_end(mesh_.edges_end());
         Mesh::Vertex v0, v1;
@@ -428,7 +417,6 @@ namespace mesh_processing {
         if (i == 100) std::cerr << "collapse break\n";
     }
 
-    //TODO : equalize_valences
     void MeshProcessing::equalize_valences() {
         Mesh::Edge_iterator e_it, e_end(mesh_.edges_end());
         Mesh::Vertex v0, v1, v2, v3;
@@ -508,7 +496,6 @@ namespace mesh_processing {
         if (i == 100) std::cerr << "flip break\n";
     }
 
-    //TODO :  tangeantial_relaxation
     void MeshProcessing::tangential_relaxation() {
         Mesh::Vertex_iterator v_it, v_end(mesh_.vertices_end());
         Point n;
@@ -523,7 +510,7 @@ namespace mesh_processing {
                 if (!mesh_.is_boundary(*v_it)) {
                     Mesh::Vertex p = *v_it;
                     //Compute the uniform laplacian
-                    laplace = Point(laplacian_operator(mesh_, p));
+                    laplace = Point(laplacian_operator(p));
 
                     //Project the laplace onto the normal, this is the parallel component of the laplace vector
                     //The perpendicular (tangent) component is simply the normal minus the parallel component.
