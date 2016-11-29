@@ -26,6 +26,47 @@ namespace mesh_processing {
         // TODO
     }
 
+    const surface_mesh::Point MeshProcessing::get_mesh_center() {
+        return mesh_center_;
+    }
+
+    const float MeshProcessing::get_dist_max() {
+        return dist_max_;
+    }
+
+    const Eigen::MatrixXf* MeshProcessing::get_points() {
+        return &points_;
+    }
+
+    const MatrixXu* MeshProcessing::get_indices() {
+        return &indices_;
+    }
+
+    const Eigen::MatrixXf* MeshProcessing::get_normals() {
+        return &normals_;
+    }
+
+    const Eigen::MatrixXf* MeshProcessing::get_colors_valence() {
+        return &color_valence_;
+    }
+
+    const Eigen::MatrixXf* MeshProcessing::get_colors_unicurvature() {
+        return &color_unicurvature_;
+    }
+
+    const Eigen::MatrixXf* MeshProcessing::get_colors_gaussian_curv() {
+        return &color_gaussian_curv_;
+    }
+
+    const Eigen::MatrixXf* MeshProcessing::get_color_curvature() {
+        return &color_curvature_;
+    }
+
+    const unsigned int MeshProcessing::get_number_of_face() {
+        return mesh_.n_faces();
+    }
+
+
     Vec3 MeshProcessing::laplacian_operator(Surface_mesh::Vertex x) {
         Surface_mesh::Vertex_around_vertex_circulator vc, vc_end;
         vc = mesh_.vertices(x);
@@ -75,7 +116,7 @@ namespace mesh_processing {
 
     void MeshProcessing::calc_uniform_mean_curvature() {
         Mesh::Vertex_property <Scalar> v_unicurvature =
-                mesh_.vertex_property<Scalar>("v:unicurvature", 0.0f);
+            mesh_.vertex_property<Scalar>("v:unicurvature", 0.0f);
         for (Mesh::Vertex x : mesh_.vertices()) {
             if (!mesh_.is_boundary(x)) {
                 Vec3 laplacian = laplacian_operator(x);
@@ -87,7 +128,7 @@ namespace mesh_processing {
 
     void MeshProcessing::calc_mean_curvature() {
         Mesh::Vertex_property <Scalar> v_curvature =
-                mesh_.vertex_property<Scalar>("v:curvature", 0.0f);
+            mesh_.vertex_property<Scalar>("v:curvature", 0.0f);
         for (Mesh::Vertex x : mesh_.vertices()) {
             if (!mesh_.is_boundary(x)) {
                 Vec3 laplace_beltrami = laplace_beltrami_operator(x, false);
@@ -99,9 +140,9 @@ namespace mesh_processing {
 
     void MeshProcessing::calc_gauss_curvature() {
         Mesh::Vertex_property <Scalar> v_gauss_curvature =
-                mesh_.vertex_property<Scalar>("v:gauss_curvature", 0.0f);
+            mesh_.vertex_property<Scalar>("v:gauss_curvature", 0.0f);
         Mesh::Vertex_property <Scalar> v_weight =
-                mesh_.vertex_property<Scalar>("v:weight", 0.0f);
+            mesh_.vertex_property<Scalar>("v:weight", 0.0f);
 
         /* For each vertex we compute the sum of the angles. */
         for (Mesh::Vertex x : mesh_.vertices()) {
@@ -154,7 +195,7 @@ namespace mesh_processing {
     }
 
     void MeshProcessing::remesh(const REMESHING_TYPE &remeshing_type,
-                                const int &num_iterations) {
+            const int &num_iterations) {
         calc_weights();
         calc_mean_curvature();
         calc_uniform_mean_curvature();
@@ -297,7 +338,7 @@ namespace mesh_processing {
                 v0 = mesh_.vertex(edge, 0);
                 v1 = mesh_.vertex(edge, 1);
                 double edge_target_length =
-                        target_length[v0] + (target_length[v1] - target_length[v0]) / 2.0;
+                    target_length[v0] + (target_length[v1] - target_length[v0]) / 2.0;
 
                 //Check if edge should be split
                 if (edge_target_length * 4 / 3.0 < edge_length) {
@@ -350,7 +391,7 @@ namespace mesh_processing {
                     v0 = mesh_.vertex(edge, 0);
                     v1 = mesh_.vertex(edge, 1);
                     double edge_target_length =
-                            target_length[v0] + (target_length[v1] - target_length[v0]) / 2.0;
+                        target_length[v0] + (target_length[v1] - target_length[v0]) / 2.0;
 
                     //Check if edge should potentially be collapsed (edge length < targe length * 4/5)
                     if (edge_target_length * 4 / 5.0 > edge_length) {
@@ -634,41 +675,41 @@ namespace mesh_processing {
 
     void MeshProcessing::compute_mesh_properties() {
         Mesh::Vertex_property <Point> vertex_normal =
-                mesh_.vertex_property<Point>("v:normal");
+            mesh_.vertex_property<Point>("v:normal");
         mesh_.update_face_normals();
         mesh_.update_vertex_normals();
         Mesh::Vertex_property <Color> v_color_valence =
-                mesh_.vertex_property<Color>("v:color_valence",
-                                             Color(1.0f, 1.0f, 1.0f));
+            mesh_.vertex_property<Color>("v:color_valence",
+                    Color(1.0f, 1.0f, 1.0f));
         Mesh::Vertex_property <Color> v_color_unicurvature =
-                mesh_.vertex_property<Color>("v:color_unicurvature",
-                                             Color(1.0f, 1.0f, 1.0f));
+            mesh_.vertex_property<Color>("v:color_unicurvature",
+                    Color(1.0f, 1.0f, 1.0f));
         Mesh::Vertex_property <Color> v_color_curvature =
-                mesh_.vertex_property<Color>("v:color_curvature",
-                                             Color(1.0f, 1.0f, 1.0f));
+            mesh_.vertex_property<Color>("v:color_curvature",
+                    Color(1.0f, 1.0f, 1.0f));
         Mesh::Vertex_property <Color> v_color_gaussian_curv =
-                mesh_.vertex_property<Color>("v:color_gaussian_curv",
-                                             Color(1.0f, 1.0f, 1.0f));
+            mesh_.vertex_property<Color>("v:color_gaussian_curv",
+                    Color(1.0f, 1.0f, 1.0f));
 
         Mesh::Vertex_property <Scalar> vertex_valence =
-                mesh_.vertex_property<Scalar>("v:valence", 0.0f);
+            mesh_.vertex_property<Scalar>("v:valence", 0.0f);
         for (auto v: mesh_.vertices()) {
             vertex_valence[v] = mesh_.valence(v);
         }
 
         Mesh::Vertex_property <Scalar> v_unicurvature =
-                mesh_.vertex_property<Scalar>("v:unicurvature", 0.0f);
+            mesh_.vertex_property<Scalar>("v:unicurvature", 0.0f);
         Mesh::Vertex_property <Scalar> v_curvature =
-                mesh_.vertex_property<Scalar>("v:curvature", 0.0f);
+            mesh_.vertex_property<Scalar>("v:curvature", 0.0f);
         Mesh::Vertex_property <Scalar> v_gauss_curvature =
-                mesh_.vertex_property<Scalar>("v:gauss_curvature", 0.0f);
+            mesh_.vertex_property<Scalar>("v:gauss_curvature", 0.0f);
 
         calc_weights();
         calc_uniform_mean_curvature();
         calc_mean_curvature();
         calc_gauss_curvature();
         color_coding(vertex_valence, &mesh_, v_color_valence, 3 /* min */,
-                     8 /* max */);
+                8 /* max */);
         color_coding(v_unicurvature, &mesh_, v_color_unicurvature);
         color_coding(v_curvature, &mesh_, v_color_curvature);
         color_coding(v_gauss_curvature, &mesh_, v_color_gaussian_curv);
@@ -701,35 +742,35 @@ namespace mesh_processing {
         j = 0;
         for (auto v: mesh_.vertices()) {
             points_.col(j) << mesh_.position(v).x,
-                    mesh_.position(v).y,
-                    mesh_.position(v).z;
+                mesh_.position(v).y,
+                mesh_.position(v).z;
 
             normals_.col(j) << vertex_normal[v].x,
-                    vertex_normal[v].y,
-                    vertex_normal[v].z;
+                vertex_normal[v].y,
+                vertex_normal[v].z;
 
             color_valence_.col(j) << v_color_valence[v].x,
-                    v_color_valence[v].y,
-                    v_color_valence[v].z;
+                v_color_valence[v].y,
+                v_color_valence[v].z;
 
             color_unicurvature_.col(j) << v_color_unicurvature[v].x,
-                    v_color_unicurvature[v].y,
-                    v_color_unicurvature[v].z;
+                v_color_unicurvature[v].y,
+                v_color_unicurvature[v].z;
 
             color_curvature_.col(j) << v_color_curvature[v].x,
-                    v_color_curvature[v].y,
-                    v_color_curvature[v].z;
+                v_color_curvature[v].y,
+                v_color_curvature[v].z;
 
             color_gaussian_curv_.col(j) << v_color_gaussian_curv[v].x,
-                    v_color_gaussian_curv[v].y,
-                    v_color_gaussian_curv[v].z;
+                v_color_gaussian_curv[v].y,
+                v_color_gaussian_curv[v].z;
             ++j;
         }
     }
 
     void MeshProcessing::color_coding(Mesh::Vertex_property <Scalar> prop, Mesh *mesh,
-                                      Mesh::Vertex_property <Color> color_prop, Scalar min_value,
-                                      Scalar max_value, int bound) {
+            Mesh::Vertex_property <Color> color_prop, Scalar min_value,
+            Scalar max_value, int bound) {
         // Get the value array
         std::vector<Scalar> values = prop.vector();
 
@@ -749,7 +790,7 @@ namespace mesh_processing {
     }
 
     void MeshProcessing::set_color(Mesh::Vertex v, const Color &col,
-                                   Mesh::Vertex_property <Color> color_prop) {
+            Mesh::Vertex_property <Color> color_prop) {
         color_prop[v] = col;
     }
 

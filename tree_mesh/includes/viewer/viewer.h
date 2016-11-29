@@ -54,64 +54,64 @@ using namespace surface_mesh;
 using namespace nanogui;
 
 class Viewer : public nanogui::Screen {
-public:
+    public:
 
-    void refresh_mesh();
-    void refresh_trackball_center();
-    Viewer();
-    ~Viewer();
+        void refresh_mesh();
+        void refresh_trackball_center();
+        Viewer();
+        ~Viewer();
 
-    virtual bool keyboardEvent(int key, int scancode, int action, int modifiers);
-    virtual void draw(NVGcontext *ctx);
-    Vector2f getScreenCoord();
-    virtual void drawContents();
+        virtual bool keyboardEvent(int key, int scancode, int action, int modifiers);
+        virtual void draw(NVGcontext *ctx);
+        Vector2f getScreenCoord();
+        virtual void drawContents();
 
-    bool scrollEvent(const Vector2i &p, const Vector2f &rel);
-    bool mouseMotionEvent(const Vector2i &p, const Vector2i &rel, int button, int modifiers);
-    bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers);
+        bool scrollEvent(const Vector2i &p, const Vector2f &rel);
+        bool mouseMotionEvent(const Vector2i &p, const Vector2i &rel, int button, int modifiers);
+        bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers);
 
-private:
-    void initShaders();
-    void computeCameraMatrices(Eigen::Matrix4f &model,
-                               Eigen::Matrix4f &view,
-                               Eigen::Matrix4f &proj);
+    private:
+        void initShaders();
+        void computeCameraMatrices(Eigen::Matrix4f &model,
+                Eigen::Matrix4f &view,
+                Eigen::Matrix4f &proj);
 
-    struct CameraParameters {
-        nanogui::Arcball arcball;
-        float zoom = 1.0f, viewAngle = 45.0f;
-        float dnear = 0.05f, dfar = 100.0f;
-        Eigen::Vector3f eye = Eigen::Vector3f(0.0f, 0.0f, 5.0f);
-        Eigen::Vector3f center = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-        Eigen::Vector3f up = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
-        Eigen::Vector3f modelTranslation = Eigen::Vector3f::Zero();
-        Eigen::Vector3f modelTranslation_start = Eigen::Vector3f::Zero();
-        float modelZoom = 1.0f;
-    };
+        struct CameraParameters {
+            nanogui::Arcball arcball;
+            float zoom = 1.0f, viewAngle = 45.0f;
+            float dnear = 0.05f, dfar = 100.0f;
+            Eigen::Vector3f eye = Eigen::Vector3f(0.0f, 0.0f, 5.0f);
+            Eigen::Vector3f center = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+            Eigen::Vector3f up = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+            Eigen::Vector3f modelTranslation = Eigen::Vector3f::Zero();
+            Eigen::Vector3f modelTranslation_start = Eigen::Vector3f::Zero();
+            float modelZoom = 1.0f;
+        };
 
-    CameraParameters camera_;
-    bool translate_ = false;
-    Vector2i translateStart_ = Vector2i(0, 0);
+        CameraParameters camera_;
+        bool translate_ = false;
+        Vector2i translateStart_ = Vector2i(0, 0);
 
-    // Variables for the viewer
-    nanogui::GLShader shader_;
-    nanogui::GLShader shaderNormals_;
-    nanogui::Window *window_;
+        // Variables for the viewer
+        nanogui::GLShader shader_;
+        nanogui::GLShader shaderNormals_;
+        nanogui::Window *window_;
 
-    mesh_processing::MeshProcessing* mesh_;
+        mesh_processing::MeshProcessing* mesh_;
 
-    enum COLOR_MODE : int { NORMAL = 0, VALENCE = 1, CURVATURE = 2 };
-    enum CURVATURE_TYPE : int { UNIMEAN = 2, LAPLACEBELTRAMI = 3, GAUSS = 4 };
+        enum COLOR_MODE : int { NORMAL = 0, VALENCE = 1, CURVATURE = 2 };
+        enum CURVATURE_TYPE : int { UNIMEAN = 2, LAPLACEBELTRAMI = 3, GAUSS = 4 };
 
-    // Boolean for the viewer
-    bool wireframe_ = false;
-    bool normals_ = false;
+        // Boolean for the viewer
+        bool wireframe_ = false;
+        bool normals_ = false;
 
-    CURVATURE_TYPE curvature_type = UNIMEAN;
-    COLOR_MODE color_mode = NORMAL;
-    mesh_processing::REMESHING_TYPE remeshing_type = mesh_processing::AVERAGE;
+        CURVATURE_TYPE curvature_type = UNIMEAN;
+        COLOR_MODE color_mode = NORMAL;
+        mesh_processing::REMESHING_TYPE remeshing_type = mesh_processing::AVERAGE;
 
-    PopupButton *popupCurvature;
-    FloatBox<float>* coefTextBox;
-    IntBox<int>* iterationTextBox;
+        PopupButton *popupCurvature;
+        FloatBox<float>* coefTextBox;
+        IntBox<int>* iterationTextBox;
 
 };
