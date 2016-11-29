@@ -21,7 +21,7 @@
 #include <nanogui/textbox.h>
 #include <nanogui/tabwidget.h>
 #include <nanogui/combobox.h>
-#include "mesh_processing.h"
+#include "mesh_processing/mesh_processing.h"
 
 #if defined(__GNUC__)
 #  pragma GCC diagnostic ignored "-Wmissing-field-initializers"

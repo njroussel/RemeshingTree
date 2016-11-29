@@ -10,7 +10,7 @@
 //         EPF Lausanne
 //
 //-----------------------------------------------------------------------------
-#include "viewer.h"
+#include "viewer/viewer.h"
 
 bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers) {
     if (Screen::keyboardEvent(key, scancode, action, modifiers)) {
