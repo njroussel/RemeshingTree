@@ -10,7 +10,7 @@
 
 if(NOT NANOGUI_FOUND)
 
-    set(NANOGUI_DIR "${PROJECT_SOURCE_DIR}/externals/nanogui")
+    set(NANOGUI_DIR "${PROJECT_SOURCE_DIR}/libs/nanogui")
 
     # Disable the examples and python stuff from nanogui
     set(NANOGUI_BUILD_PYTHON OFF CACHE BOOL " " FORCE)

@@ -283,13 +283,13 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
 
     Button* b = new Button(popup, "Bunny");
     b->setCallback([this]() {
-        mesh_->load_mesh("../data/bunny.off");
+        mesh_->load_mesh("../models/bunny.off");
         this->refresh_mesh();
         this->refresh_trackball_center();
     });
     b = new Button(popup, "Max-Planck");
     b->setCallback([this]() {
-        mesh_->load_mesh("../data/max.off");
+        mesh_->load_mesh("../models/max.off");
         this->refresh_mesh();
         this->refresh_trackball_center();
     });
@@ -374,7 +374,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     performLayout();
 
     initShaders();
-    mesh_ = new mesh_processing::MeshProcessing("../data/bunny.off");
+    mesh_ = new mesh_processing::MeshProcessing("../models/bunny.off");
     this->refresh_mesh();
     this->refresh_trackball_center();
 }

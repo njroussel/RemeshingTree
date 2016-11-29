@@ -33,4 +33,4 @@ copy_files_once(${DATA})
 #================================================================
 # Labs and exercises
 #================================================================
-add_subdirectory(remeshing)
+add_subdirectory(tree_mesh)
