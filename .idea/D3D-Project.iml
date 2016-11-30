@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Debug/nanogui/nanogui_resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Debug/nanogui/nanogui_resources.cpp" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/MinSizeRel/nanogui/nanogui_resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/MinSizeRel/nanogui/nanogui_resources.cpp" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/RelWithDebInfo/nanogui/nanogui_resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/RelWithDebInfo/nanogui/nanogui_resources.cpp" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Release/nanogui/nanogui_resources.cpp">
+      <sourceFolder url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Release/nanogui/nanogui_resources.cpp" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/tree_mesh/src/mesh_processing/wireframe_processing.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tree_mesh/src/mesh_processing/mesh_processing.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tree_mesh/src/viewer/viewer.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tree_mesh/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tree_mesh/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tree_mesh/includes/mesh_processing/wireframe_processing.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tree_mesh/includes/mesh_processing/mesh_processing.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tree_mesh/includes/viewer/viewer.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/FindSurfaceMesh.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/FindNanoGUI.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/ConfigureCompiler.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/vulkan.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/init.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/linux_joystick.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/posix_tls.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/x11_monitor.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/linux_joystick.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/internal.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/x11_init.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/glfw3.pc.in" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/x11_window.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/x11_platform.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/glx_context.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/posix_time.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/context.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/glx_context.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/posix_time.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/window.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/monitor.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/egl_context.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/glfw3Config.cmake.in" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/input.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/egl_context.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/posix_tls.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/xkb_unicode.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/glfw_config.h.in" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/src/xkb_unicode.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/include/GLFW/glfw3native.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/include/GLFW/glfw3.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/glfw/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/nanovg/src/nanovg.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/ext/nanovg/src/nanovg.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/layout.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/formhelper.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/textbox.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/tabheader.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/graph.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/opengl.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/messagedialog.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/stackedwidget.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/widget.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/screen.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/popupbutton.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/vscrollpanel.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/label.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/colorwheel.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/checkbox.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/button.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/serializer/opengl.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/serializer/sparse.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/serializer/core.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/tabwidget.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/theme.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/common.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/slider.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/nanogui.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/progressbar.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/combobox.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/colorpicker.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/popup.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/glutil.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/imagepanel.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/toolbutton.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/imageview.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/include/nanogui/window.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/resources/bin2c.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/textbox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/messagedialog.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/combobox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/theme.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/progressbar.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/graph.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/label.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/widget.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/slider.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/stackedwidget.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/button.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/tabheader.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/layout.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/popup.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/checkbox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/screen.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/tabwidget.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/colorpicker.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/common.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/glutil.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/serializer.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/colorwheel.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/window.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/imageview.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/popupbutton.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/vscrollpanel.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/src/imagepanel.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/nanogui/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/IO_stl.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/properties.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/Surface_mesh.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/IO.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/IO.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/Vector.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/types.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/IO_obj.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/Surface_mesh.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/IO_poly.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/surface_mesh/surface_mesh/IO_off.cpp" isTestSource="false" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="Header Search Paths">
+        <CLASSES>
+          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/local/include" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Release/nanogui" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Debug/nanogui" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/RelWithDebInfo/nanogui" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/MinSizeRel/nanogui" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/local/include" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Release/nanogui" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Debug/nanogui" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/RelWithDebInfo/nanogui" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/MinSizeRel/nanogui" />
+        </SOURCES>
+        <excluded>
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Release/nanogui/nanogui_resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/Debug/nanogui/nanogui_resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/RelWithDebInfo/nanogui/nanogui_resources.cpp" />
+          <root url="file://$USER_HOME$/.CLion2016.2/system/cmake/generated/D3D-Project-8ea9ee8b/8ea9ee8b/MinSizeRel/nanogui/nanogui_resources.cpp" />
+        </excluded>
+      </library>
+    </orderEntry>
+  </component>
+</module>

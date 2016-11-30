@@ -22,6 +22,7 @@
 #include <nanogui/tabwidget.h>
 #include <nanogui/combobox.h>
 #include "mesh_processing/mesh_processing.h"
+#include <mesh_processing/wireframe_processing.h>
 
 #if defined(__GNUC__)
 #  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
@@ -97,7 +98,7 @@ class Viewer : public nanogui::Screen {
         nanogui::GLShader shaderNormals_;
         nanogui::Window *window_;
 
-        mesh_processing::MeshProcessing* mesh_;
+        mesh_processing::WireframeProcessing* mesh_;
 
         enum COLOR_MODE : int { NORMAL = 0, VALENCE = 1, CURVATURE = 2 };
         enum CURVATURE_TYPE : int { UNIMEAN = 2, LAPLACEBELTRAMI = 3, GAUSS = 4 };

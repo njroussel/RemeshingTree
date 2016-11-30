@@ -371,10 +371,18 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
             this->refresh_mesh();
             });
 
+    b = new Button(window_, "Wireframe");
+    b->setCallback([this]() {
+        this->mesh_->create_wire_frame(0.1f, 1.0f);
+        this->mesh_->compute_mesh_properties();
+        this->refresh_mesh();
+    });
+
     performLayout();
 
     initShaders();
-    mesh_ = new mesh_processing::MeshProcessing("../models/bunny.off");
+    //mesh_ = new mesh_processing::MeshProcessing("../models/bunny.off");
+    mesh_ = new mesh_processing::WireframeProcessing("../models/bunny.off", "../models/sphere.obj", "../models/cylinder.obj");
     this->refresh_mesh();
     this->refresh_trackball_center();
 }

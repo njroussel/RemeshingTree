@@ -67,12 +67,14 @@ namespace mesh_processing {
             surface_mesh::Vec3 laplacian_operator(Mesh::Vertex x);
             surface_mesh::Vec3 laplace_beltrami_operator(Mesh::Vertex x, bool normalize);
 
+            const Mesh& mesh() { return mesh_;}
+
         private:
             void calc_weights();
             void calc_edges_weights();
             void calc_vertices_weights();
 
-        private:
+    protected:
             Mesh mesh_;
             Mesh mesh_init_;
             surface_mesh::Point mesh_center_ = surface_mesh::Point(0.0f, 0.0f, 0.0f);
