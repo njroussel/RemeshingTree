@@ -67,7 +67,8 @@ namespace mesh_processing {
             surface_mesh::Vec3 laplacian_operator(Mesh::Vertex x);
             surface_mesh::Vec3 laplace_beltrami_operator(Mesh::Vertex x, bool normalize);
 
-            const Mesh& mesh() { return mesh_;}
+            const Mesh& mesh();
+            void swap(Mesh& mesh);
 
         private:
             void calc_weights();

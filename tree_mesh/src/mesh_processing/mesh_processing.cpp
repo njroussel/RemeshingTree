@@ -66,6 +66,13 @@ namespace mesh_processing {
         return mesh_.n_faces();
     }
 
+    const Mesh& MeshProcessing::mesh() {
+        return mesh_;
+    }
+
+    void MeshProcessing::swap(Mesh& mesh) {
+        mesh_ = mesh;
+    }
 
     Vec3 MeshProcessing::laplacian_operator(Surface_mesh::Vertex x) {
         Surface_mesh::Vertex_around_vertex_circulator vc, vc_end;

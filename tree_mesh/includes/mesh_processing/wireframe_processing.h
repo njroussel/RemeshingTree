@@ -20,6 +20,7 @@ namespace mesh_processing {
             void insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot, const surface_mesh::Vec3 scale);
             Mesh sphere_;
             Mesh cylinder_;
+            Mesh result_; /* Dirty, but temporary. */
     };
 }
 
