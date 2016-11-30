@@ -5,6 +5,7 @@
 #define GLM_SWIZZLE
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
+#include <map>
 
 #define IDENTITY glm::mat4(1.0f)
 
@@ -29,6 +30,7 @@ namespace mesh_processing {
         replace_vertices(spheres_radius);
         replace_edges(cylinder_radius);
         swap(result_);
+        std::cout << result_.points().size() << " vertices inserted." << std::endl;
     }
 
     void WireframeProcessing::replace_vertices(const float spheres_radius) {
@@ -71,6 +73,7 @@ namespace mesh_processing {
         Mesh::Face_iterator fc, fc_end;
         fc = to_insert.faces_begin();
         fc_end = to_insert.faces_end();
+        std::map<Mesh::Vertex, Mesh::Vertex> vertex_mapping;
         do {
             Mesh::Face f = *fc;
 
@@ -82,22 +85,29 @@ namespace mesh_processing {
 
             do {
                 Mesh::Vertex v = *vc;
-                Point p = to_insert.position(v) * scale;
-                /* TODO : Avoid creating vertices multiple times. May not be trivial... */
+                if (vertex_mapping.find(v) == vertex_mapping.end()) {
+                    Point p = to_insert.position(v) * scale;
+                    /* TODO : Avoid creating vertices multiple times. May not be trivial... */
 
-                /* Rotations */
-                glm::vec3 pos_glm = Vec3_to_glm(p);
-                glm::vec3 rotated_pos;
-                if (axis != glm::vec3(0.0f))
-                    rotated_pos = glm::vec3(rot_matrix * glm::vec4(pos_glm, 1.0f));
-                else
-                    rotated_pos = pos_glm;
-                p = glm_to_Vec3(rotated_pos);
+                    /* Rotations */
+                    glm::vec3 pos_glm = Vec3_to_glm(p);
+                    glm::vec3 rotated_pos;
+                    if (axis != glm::vec3(0.0f))
+                        rotated_pos = glm::vec3(rot_matrix * glm::vec4(pos_glm, 1.0f));
+                    else
+                        rotated_pos = pos_glm;
+                    p = glm_to_Vec3(rotated_pos);
 
-                p = p + pos;
+                    p = p + pos;
 
-                Mesh::Vertex to_add = result_.add_vertex(p);
-                vertices.push_back(to_add);
+                    
+                    Mesh::Vertex to_add = result_.add_vertex(p);
+                    vertices.push_back(to_add);
+                    vertex_mapping[v] = to_add;
+                }
+                else {
+                    vertices.push_back(vertex_mapping[v]);
+                }
             }while (++vc != vc_end);
 
             if (vertices.size() != 3){
