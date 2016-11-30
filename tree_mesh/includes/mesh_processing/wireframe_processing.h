@@ -17,7 +17,7 @@ namespace mesh_processing {
         private:
             void replace_vertices(const float spheres_radius);
             void replace_edges(const float cylinder_radius);
-            void insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot, const surface_mesh::Vec3 scale);
+            void insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot_axis, const float rot_angle, const surface_mesh::Vec3 scale);
             Mesh sphere_;
             Mesh cylinder_;
             Mesh result_; /* Dirty, but temporary. */

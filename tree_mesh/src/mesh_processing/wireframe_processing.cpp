@@ -1,6 +1,19 @@
 #include "mesh_processing/wireframe_processing.h"
 #include "mesh_processing/mesh_processing.h"
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/glm.hpp>
+#define GLM_SWIZZLE
+#include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
+
+#define IDENTITY glm::mat4(1.0f)
+
+/* Some conversion macros. */
+#define glm_to_Vec3(v) \
+    surface_mesh::Vec3(v.x, v.y, v.z)
+
+#define Vec3_to_glm(v) \
+    glm::vec3(v[0], v[1], v[2])
 
 namespace mesh_processing {
     WireframeProcessing::WireframeProcessing(const std::string& filename, const std::string& sphere_filename, const std::string& cylinder_filename) : MeshProcessing(filename) {
@@ -25,23 +38,15 @@ namespace mesh_processing {
         do {
             Mesh::Vertex v = *vc;
             Point p = mesh_.position(v);
-            insert_mesh(sphere_, p, surface_mesh::Vec3(0, 0, 0), surface_mesh::Vec3(spheres_radius, spheres_radius, spheres_radius));
+            insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, surface_mesh::Vec3(spheres_radius, spheres_radius, spheres_radius));
         } while (++vc != vc_end);
-    }
-
-    static float dot(surface_mesh::Vec3 v1, surface_mesh::Vec3 v2) {
-        surface_mesh::Vec3 tmp = v1 * v2;
-        return tmp[0] + tmp[1] + tmp[2];
     }
 
     void WireframeProcessing::replace_edges(const float cylinder_radius) {
         Mesh::Edge_iterator ec, ec_end;
         ec = mesh_.edges_begin();
         ec_end = mesh_.edges_end();
-        int skip = 0;
         do {
-            if (skip > 0 && --skip == 0)
-                continue;
             Mesh::Edge e = *ec;
             Mesh::Vertex v0 = mesh_.vertex(e, 0);
             Mesh::Vertex v1 = mesh_.vertex(e, 1);
@@ -50,30 +55,19 @@ namespace mesh_processing {
             surface_mesh::Vec3 scale = surface_mesh::Vec3(cylinder_radius, mesh_.edge_length(e), cylinder_radius);
             Point pos = (p0 + p1) / 2.0f;
 
-            /* Rotations : shit just got real. */
-            std::cout << " Edge = ( " << p0 << " ; " << p1 << " )" << std::endl;
+            glm::vec3 edge_dir = Vec3_to_glm((p0 - p1).normalize());
+            glm::vec3 cylinder_axis = glm::vec3(0.0f, 1.0f, 0.0f);
+            surface_mesh::Vec3 rot_axis = glm_to_Vec3(glm::cross(cylinder_axis, edge_dir));
 
-            surface_mesh::Vec3 edge_dir = (p0 - p1).normalize();
-            std::cout << "edge_dir = " << edge_dir << std::endl;
+            float rot_angle = glm::acos(glm::dot(edge_dir, cylinder_axis));
 
-            float angle_axis_x = std::acos(dot(edge_dir, surface_mesh::Vec3(1, 0, 0)));
-            float angle_axis_y = std::acos(dot(edge_dir, surface_mesh::Vec3(0, 1, 0)));
-            float angle_axis_z = std::acos(dot(edge_dir, surface_mesh::Vec3(0, 0, 1)));
-
-            std::cout << "angles = ( " << angle_axis_x << " ; " << angle_axis_y << " ; " << angle_axis_z << " )" << std::endl;
-
-            float pi02 = 3.14 / 2.0;
-            surface_mesh::Vec3 rot(angle_axis_x, angle_axis_y + pi02, angle_axis_z);
-            /* *** */
-
-#define ZERO surface_mesh::Vec3(0, 0, 0)
-            insert_mesh(cylinder_, pos, rot, scale);
-            //break;
+            insert_mesh(cylinder_, pos, rot_axis, rot_angle, scale);
         }while (++ec != ec_end);
     }
 
-    void WireframeProcessing::insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot, const surface_mesh::Vec3 scale) {
-        std::cout << "rot  =  " << rot << std::endl;
+    void WireframeProcessing::insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot_axis, const float rot_angle, const surface_mesh::Vec3 scale) {
+        glm::vec3 axis = Vec3_to_glm(rot_axis);
+        glm::mat4 rot_matrix = glm::rotate(IDENTITY, rot_angle, axis);
         Mesh::Face_iterator fc, fc_end;
         fc = to_insert.faces_begin();
         fc_end = to_insert.faces_end();
@@ -92,25 +86,9 @@ namespace mesh_processing {
                 /* TODO : Avoid creating vertices multiple times. May not be trivial... */
 
                 /* Rotations */
-                Point after_rot;
-                float phi = rot[0];
-                after_rot[0] = p[0];
-                after_rot[1] = std::cos(phi) * p[1] - std::sin(phi) * p[2];
-                after_rot[2] = std::sin(phi) * p[1] + std::cos(phi) * p[2];
-                p = after_rot;
-
-                phi = rot[1];
-                after_rot[0] = std::cos(phi) * p[0] + std::sin(phi) * p[2];
-                after_rot[1] = p[1];
-                after_rot[2] = -std::sin(phi) * p[0] + std::cos(phi) * p[2];
-                p = after_rot;
-
-                phi = rot[2];
-                after_rot[0] = std::cos(phi) * p[0] - std::sin(phi) * p[1];
-                after_rot[1] = std::sin(phi) * p[0] + std::cos(phi) * p[1];
-                after_rot[2] = p[2];
-                p = after_rot;
-
+                glm::vec3 pos_glm = Vec3_to_glm(p);
+                glm::vec3 rotated_pos = glm::vec3(rot_matrix * glm::vec4(pos_glm, 1.0f));
+                p = glm_to_Vec3(rotated_pos);
 
                 p = p + pos;
 

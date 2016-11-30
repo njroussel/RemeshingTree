@@ -382,7 +382,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
 
     initShaders();
     //mesh_ = new mesh_processing::MeshProcessing("../models/bunny.off");
-    mesh_ = new mesh_processing::WireframeProcessing("../models/plane.obj", "../models/sphere.obj", "../models/cylinder.obj");
+    mesh_ = new mesh_processing::WireframeProcessing("../models/isosphere.obj", "../models/sphere.obj", "../models/cylinder.obj");
     this->refresh_mesh();
     this->refresh_trackball_center();
 }
