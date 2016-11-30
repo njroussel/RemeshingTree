@@ -87,7 +87,11 @@ namespace mesh_processing {
 
                 /* Rotations */
                 glm::vec3 pos_glm = Vec3_to_glm(p);
-                glm::vec3 rotated_pos = glm::vec3(rot_matrix * glm::vec4(pos_glm, 1.0f));
+                glm::vec3 rotated_pos;
+                if (axis != glm::vec3(0.0f))
+                    rotated_pos = glm::vec3(rot_matrix * glm::vec4(pos_glm, 1.0f));
+                else
+                    rotated_pos = pos_glm;
                 p = glm_to_Vec3(rotated_pos);
 
                 p = p + pos;
