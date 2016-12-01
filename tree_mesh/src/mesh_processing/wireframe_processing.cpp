@@ -9,6 +9,8 @@
 
 #define IDENTITY glm::mat4(1.0f)
 
+#define USE_PROPERTY false
+
 /* Some conversion macros. */
 #define glm_to_Vec3(v) \
     surface_mesh::Vec3(v.x, v.y, v.z)
@@ -29,41 +31,52 @@ namespace mesh_processing {
     void WireframeProcessing::create_wire_frame(const float spheres_radius, const float cylinder_radius) {
         replace_vertices(spheres_radius);
         replace_edges(cylinder_radius);
-        swap(result_);
+        if (result_.points().size() > 0) {
+            swap(result_);
+        }
+        else {
+            std::cout << "WARNING : No wireframe created." << std::endl;
+        }
         std::cout << result_.points().size() << " vertices inserted." << std::endl;
     }
 
     void WireframeProcessing::replace_vertices(const float spheres_radius) {
+        Mesh::Vertex_property<bool> v_wireframe = mesh_.vertex_property<bool>("v:wireframe", false); 
         Mesh::Vertex_iterator vc, vc_end;
         vc = mesh_.vertices_begin();
         vc_end = mesh_.vertices_end();
         do {
             Mesh::Vertex v = *vc;
-            Point p = mesh_.position(v);
-            insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, surface_mesh::Vec3(spheres_radius, spheres_radius, spheres_radius));
+            if (!USE_PROPERTY || v_wireframe[v]) {
+                Point p = mesh_.position(v);
+                insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, surface_mesh::Vec3(spheres_radius, spheres_radius, spheres_radius));
+            }
         } while (++vc != vc_end);
     }
 
     void WireframeProcessing::replace_edges(const float cylinder_radius) {
+        Mesh::Edge_property<bool> e_wireframe = mesh_.edge_property<bool>("e:wireframe", false); 
         Mesh::Edge_iterator ec, ec_end;
         ec = mesh_.edges_begin();
         ec_end = mesh_.edges_end();
         do {
             Mesh::Edge e = *ec;
-            Mesh::Vertex v0 = mesh_.vertex(e, 0);
-            Mesh::Vertex v1 = mesh_.vertex(e, 1);
-            Point p0 = mesh_.position(v0);
-            Point p1 = mesh_.position(v1);
-            surface_mesh::Vec3 scale = surface_mesh::Vec3(cylinder_radius, mesh_.edge_length(e), cylinder_radius);
-            Point pos = (p0 + p1) / 2.0f;
+            if (!USE_PROPERTY || e_wireframe[e]) {
+                Mesh::Vertex v0 = mesh_.vertex(e, 0);
+                Mesh::Vertex v1 = mesh_.vertex(e, 1);
+                Point p0 = mesh_.position(v0);
+                Point p1 = mesh_.position(v1);
+                surface_mesh::Vec3 scale = surface_mesh::Vec3(cylinder_radius, mesh_.edge_length(e), cylinder_radius);
+                Point pos = (p0 + p1) / 2.0f;
 
-            glm::vec3 edge_dir = Vec3_to_glm((p0 - p1).normalize());
-            glm::vec3 cylinder_axis = glm::vec3(0.0f, 1.0f, 0.0f);
-            surface_mesh::Vec3 rot_axis = glm_to_Vec3(glm::cross(cylinder_axis, edge_dir));
+                glm::vec3 edge_dir = Vec3_to_glm((p0 - p1).normalize());
+                glm::vec3 cylinder_axis = glm::vec3(0.0f, 1.0f, 0.0f);
+                surface_mesh::Vec3 rot_axis = glm_to_Vec3(glm::cross(cylinder_axis, edge_dir));
 
-            float rot_angle = glm::acos(glm::dot(edge_dir, cylinder_axis));
+                float rot_angle = glm::acos(glm::dot(edge_dir, cylinder_axis));
 
-            insert_mesh(cylinder_, pos, rot_axis, rot_angle, scale);
+                insert_mesh(cylinder_, pos, rot_axis, rot_angle, scale);
+            }
         }while (++ec != ec_end);
     }
 
