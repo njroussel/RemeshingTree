@@ -100,7 +100,6 @@ namespace mesh_processing {
                 Mesh::Vertex v = *vc;
                 if (vertex_mapping.find(v) == vertex_mapping.end()) {
                     Point p = to_insert.position(v) * scale;
-                    /* TODO : Avoid creating vertices multiple times. May not be trivial... */
 
                     /* Rotations */
                     glm::vec3 pos_glm = Vec3_to_glm(p);
@@ -128,8 +127,6 @@ namespace mesh_processing {
             }
 
             Mesh::Face new_face = result_.add_face(vertices);
-            /* TODO : Compute normals ( doesn't work as is ).
-             * But may not be important for printing. */
             result_.compute_face_normal(new_face);
         } while (++fc != fc_end);
     }
