@@ -2,6 +2,7 @@
 #define WIREFRAME_PROCESSING_H
 
 #include "mesh_processing/mesh_processing.h"
+#include "utils.h"
 
 namespace mesh_processing {
     class WireframeProcessing : public MeshProcessing {
