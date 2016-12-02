@@ -374,7 +374,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     b = new Button(window_, "Wireframe");
     b->setCallback([this]() {
         /* For max-plank re-meshed with height, use 0.2, 0.2. */
-        this->mesh_->create_wire_frame(0.2f, 0.2f);
+        this->mesh_->create_wire_frame(0.02f, 0.02f);
         this->mesh_->compute_mesh_properties();
         this->refresh_mesh();
     });

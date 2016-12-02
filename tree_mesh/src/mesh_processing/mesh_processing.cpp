@@ -211,6 +211,7 @@ namespace mesh_processing {
 
         // main remeshing loop
         for (int i = 0; i < num_iterations; ++i) {
+            std::cout << 100.0f * (float) i / num_iterations << " % completed." << std::endl;
             split_long_edges();
             cout << "split" << endl;
             collapse_short_edges();
@@ -220,6 +221,14 @@ namespace mesh_processing {
             tangential_relaxation();
             cout << "relax" << endl;
         }
+    }
+
+    float MeshProcessing::average_edge_length() {
+        float mean_length = 0;
+        for (Mesh::Edge edge : mesh_.edges()) {
+            mean_length += mesh_.edge_length(edge);
+        }
+        return mean_length / mesh_.edges_size();;
     }
 
     void MeshProcessing::calc_target_length(const REMESHING_TYPE &remeshing_type) {
@@ -235,15 +244,11 @@ namespace mesh_processing {
         Mesh::Vertex_property <Scalar> target_length = mesh_.vertex_property<Scalar>("v:length", 0);
         Mesh::Vertex_property <Scalar> target_new_length = mesh_.vertex_property<Scalar>("v:newlength", 0);
 
-        mean_length = 0;
-        for (Mesh::Edge edge : mesh_.edges()) {
-            mean_length += mesh_.edge_length(edge);
-        }
-        mean_length /= mesh_.edges_size();
+        mean_length = average_edge_length();
 
         if (remeshing_type == AVERAGE) {
             for (v_it = mesh_.vertices_begin(); v_it != v_end; ++v_it) {
-                target_length[*v_it] = mean_length;
+                target_length[*v_it] = mean_length * 10;
             }
         } else if (remeshing_type == CURV) {
             // calculate desired length
@@ -678,6 +683,7 @@ namespace mesh_processing {
 
         // Store the original mesh, this might be useful for some computations
         mesh_init_ = mesh_;
+        std::cout << "Average edge length = " << average_edge_length() << std::endl;
     }
 
     void MeshProcessing::compute_mesh_properties() {

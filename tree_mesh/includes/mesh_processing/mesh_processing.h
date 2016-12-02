@@ -50,6 +50,7 @@ namespace mesh_processing {
 
 
             void remesh(const REMESHING_TYPE &remeshing_type, const int &num_iterations);
+            float average_edge_length(void);
             void calc_target_length(const REMESHING_TYPE &remeshing_type);
             void split_long_edges();
             void collapse_short_edges();
