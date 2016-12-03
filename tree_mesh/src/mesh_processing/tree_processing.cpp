@@ -13,8 +13,8 @@ namespace mesh_processing {
     TreeProcessing::~TreeProcessing() {}
 
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
-        const float lowest_point = get_lowest_point(mesh_)[1];
-        const float highest_point = get_highest_point(mesh_)[1];
+        const float lowest_point = mesh_.position(get_lowest_point(mesh_))[1];
+        const float highest_point = mesh_.position(get_highest_point(mesh_))[1];
         
         for (Mesh::Vertex v : mesh_.vertices()) {
             float relative_height = (mesh_.position(v)[1] - lowest_point) / (highest_point - lowest_point);
@@ -32,5 +32,9 @@ namespace mesh_processing {
             e_inwireframe[e] = true;
             e_scale[e] = (1.0f - relative_height) * cylinder_base_diameter_;
         }
+    }
+
+    void TreeProcessing::inner_fill(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+        
     }
 }

@@ -1,31 +1,35 @@
 #include "utils.h"
 
-surface_mesh::Vec3 get_highest_point(const Mesh &mesh) {
+Mesh::Vertex get_highest_point(const Mesh &mesh) {
     Mesh::Vertex_iterator vc, vc_end;
     vc = mesh.vertices_begin();
     vc_end = mesh.vertices_end();
-    surface_mesh::Vec3 highest = surface_mesh::Vec3(FLT_MIN,FLT_MIN,FLT_MIN);
+    float highest = FLT_MIN; 
+    Mesh::Vertex highest_v;
     do {
         Mesh::Vertex v = *vc;
         Point p = mesh.position(v);
-        if (p[1] > highest[1]) {
-            highest = p;
+        if (p[1] > highest) {
+            highest = p[1];
+            highest_v = v;
         }
     } while (++vc!=vc_end); 
-    return highest;
+    return highest_v;
 }
 
-surface_mesh::Vec3 get_lowest_point(const Mesh &mesh) {
+Mesh::Vertex get_lowest_point(const Mesh &mesh) {
     Mesh::Vertex_iterator vc, vc_end;
     vc = mesh.vertices_begin();
     vc_end = mesh.vertices_end();
-    surface_mesh::Vec3 lowest = surface_mesh::Vec3(FLT_MAX,FLT_MAX,FLT_MAX);
+    float lowest = FLT_MAX; 
+    Mesh::Vertex lowest_v;
     do {
         Mesh::Vertex v = *vc;
         Point p = mesh.position(v);
-        if (p[1] < lowest[1]) {
-            lowest = p;
+        if (p[1] < lowest) {
+            lowest = p[1];
+            lowest_v = v;
         }
     } while (++vc!=vc_end); 
-    return lowest;
+    return lowest_v;
 }

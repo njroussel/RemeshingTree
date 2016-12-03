@@ -6,5 +6,5 @@
 
 typedef surface_mesh::Surface_mesh Mesh;
 
-surface_mesh::Vec3 get_highest_point(const Mesh &mesh);
-surface_mesh::Vec3 get_lowest_point(const Mesh &mesh);
+Mesh::Vertex get_highest_point(const Mesh &mesh);
+Mesh::Vertex get_lowest_point(const Mesh &mesh);
