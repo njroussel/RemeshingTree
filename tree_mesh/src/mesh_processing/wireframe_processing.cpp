@@ -8,6 +8,7 @@
 #include <map>
 
 #define IDENTITY glm::mat4(1.0f)
+#define ZERO_VEC surface_mesh::Vec3(0.0f, 0.,0f, 0.0f)
 
 #define USE_PROPERTY false
 
@@ -28,7 +29,27 @@ namespace mesh_processing {
 
     }
 
-    void WireframeProcessing::create_wire_frame(const float spheres_radius, const float cylinder_radius) {
+    void WireframeProcessing::fill_vertex_wireframe_properties(void) {
+        /* Default behavior, all vertices are in the wireframe and their scale
+         * is determined by the DEFAULT_SPHERE_SIZE macro. */
+        Mesh::Vertex_property<bool> v_wireframe = mesh_.vertex_property<bool>("v:in_wireframe", false); 
+        Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
+        for (Mesh::Vertex v : mesh_.vertices()) {
+            v_wireframe[v] = true;
+            v_scale[v] = surface_mesh::Vec3(spheres_radius, spheres_radius, spheres_radius);
+        }
+    }
+
+    void WireframeProcessing::fill_edge_wireframe_properties(void) {
+        Mesh::Edge_property<bool> e_wireframe = mesh_.edge_property<bool>("e:in_wireframe", false); 
+        Mesh::Edge_property<surface_mesh::Vec3> e_scale = mesh_.edge_property<surface_mesh::Vec3>("e:wireframe_cylinder_scale", ZERO_VEC); 
+        for (Mesh::Edge e : mesh_.edges()) {
+            e_wireframe[e] = true;
+            e_scale[e] = 
+        }
+    }
+
+    void WireframeProcessing::create_wire_frame() {
         replace_vertices(spheres_radius);
         replace_edges(cylinder_radius);
         if (result_.points().size() > 0) {
@@ -40,8 +61,9 @@ namespace mesh_processing {
         std::cout << result_.points().size() << " vertices inserted." << std::endl;
     }
 
-    void WireframeProcessing::replace_vertices(const float spheres_radius) {
-        Mesh::Vertex_property<bool> v_wireframe = mesh_.vertex_property<bool>("v:wireframe", false); 
+    void WireframeProcessing::replace_vertices() {
+        Mesh::Vertex_property<bool> v_wireframe = mesh_.vertex_property<bool>("v:in_wireframe", false); 
+        Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
         Mesh::Vertex_iterator vc, vc_end;
         vc = mesh_.vertices_begin();
         vc_end = mesh_.vertices_end();
@@ -49,13 +71,14 @@ namespace mesh_processing {
             Mesh::Vertex v = *vc;
             if (!USE_PROPERTY || v_wireframe[v]) {
                 Point p = mesh_.position(v);
-                insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, surface_mesh::Vec3(spheres_radius, spheres_radius, spheres_radius));
+                insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, v_scale[v]);
             }
         } while (++vc != vc_end);
     }
 
-    void WireframeProcessing::replace_edges(const float cylinder_radius) {
-        Mesh::Edge_property<bool> e_wireframe = mesh_.edge_property<bool>("e:wireframe", false); 
+    void WireframeProcessing::replace_edges() {
+        Mesh::Edge_property<bool> e_wireframe = mesh_.edge_property<bool>("e:in_wireframe", false); 
+        Mesh::Edge_property<surface_mesh::Vec3> e_scale = mesh_.edge_property<surface_mesh::Vec3>("e:wireframe_cylinder_scale", ZERO_VEC); 
         Mesh::Edge_iterator ec, ec_end;
         ec = mesh_.edges_begin();
         ec_end = mesh_.edges_end();
@@ -66,7 +89,7 @@ namespace mesh_processing {
                 Mesh::Vertex v1 = mesh_.vertex(e, 1);
                 Point p0 = mesh_.position(v0);
                 Point p1 = mesh_.position(v1);
-                surface_mesh::Vec3 scale = surface_mesh::Vec3(cylinder_radius, mesh_.edge_length(e), cylinder_radius);
+                surface_mesh::Vec3 scale = surface_mesh::Vec3(e_scale[0], mesh_.edge_length(e), e_scale[2]);
                 Point pos = (p0 + p1) / 2.0f;
 
                 glm::vec3 edge_dir = Vec3_to_glm((p0 - p1).normalize());
