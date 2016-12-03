@@ -10,9 +10,7 @@
 //         EPF Lausanne
 //
 //-----------------------------------------------------------------------------
-#ifndef MESH_PROCESSING_H
-#define MESH_PROCESSING_H
-
+#pragma once
 #include <surface_mesh/Surface_mesh.h>
 #include <surface_mesh/types.h>
 #include <Eigen/Sparse>
@@ -103,5 +101,3 @@ namespace mesh_processing {
     };
 
 }
-
-#endif // MESH_PROCESSING_H

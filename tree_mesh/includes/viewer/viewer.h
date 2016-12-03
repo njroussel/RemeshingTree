@@ -23,6 +23,7 @@
 #include <nanogui/combobox.h>
 #include "mesh_processing/mesh_processing.h"
 #include <mesh_processing/wireframe_processing.h>
+#include <mesh_processing/tree_processing.h>
 
 #if defined(__GNUC__)
 #  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
