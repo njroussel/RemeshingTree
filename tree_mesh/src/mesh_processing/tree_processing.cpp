@@ -12,7 +12,7 @@ namespace mesh_processing {
 
     TreeProcessing::~TreeProcessing() {}
 
-    void TreeProcessing::fill_vertex_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale) {
+    void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
         const float lowest_point = get_lowest_point(mesh_)[1];
         const float highest_point = get_highest_point(mesh_)[1];
         
@@ -21,12 +21,7 @@ namespace mesh_processing {
             v_inwireframe[v] = true;
             v_scale[v] = (1.0f - relative_height) * sphere_base_diameter_;
         }
-    }
 
-    void TreeProcessing::fill_edge_wireframe_properties(Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
-        const float lowest_point = get_lowest_point(mesh_)[1];
-        const float highest_point = get_highest_point(mesh_)[1];
-    
         for (Mesh::Edge e : mesh_.edges()) {
             Mesh::Vertex v0 = mesh_.vertex(e, 0);
             Mesh::Vertex v1 = mesh_.vertex(e, 1);

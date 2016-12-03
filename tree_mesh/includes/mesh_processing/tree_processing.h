@@ -13,8 +13,8 @@ namespace mesh_processing {
             ~TreeProcessing();
 
         private:
-            virtual void fill_vertex_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale);
-            virtual void fill_edge_wireframe_properties(Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
+            virtual void fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
+            void inner_fill(void);
 
             float sphere_base_diameter_;
             float cylinder_base_diameter_;

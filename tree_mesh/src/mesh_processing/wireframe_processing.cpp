@@ -35,11 +35,9 @@ namespace mesh_processing {
     void WireframeProcessing::create_wire_frame() {
         Mesh::Vertex_property<bool> v_inwireframe = mesh_.vertex_property<bool>("v:in_wireframe", false); 
         Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
-        fill_vertex_wireframe_properties(v_inwireframe, v_scale);
-
         Mesh::Edge_property<bool> e_inwireframe = mesh_.edge_property<bool>("e:in_wireframe", false); 
         Mesh::Edge_property<surface_mesh::Vec3> e_scale = mesh_.edge_property<surface_mesh::Vec3>("e:wireframe_cylinder_scale", ZERO_VEC); 
-        fill_edge_wireframe_properties(e_inwireframe, e_scale);
+        fill_wireframe_properties(v_inwireframe, v_scale, e_inwireframe, e_scale);
 
         replace_vertices();
         replace_edges();
@@ -145,16 +143,11 @@ namespace mesh_processing {
         } while (++fc != fc_end);
     }
 
-    void WireframeProcessing::fill_vertex_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale) {
-        /* Default behavior, all vertices are in the wireframe and their scale
-         * is determined by the DEFAULT_SPHERE_SIZE macro. */
+    void WireframeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
         for (Mesh::Vertex v : mesh_.vertices()) {
             v_inwireframe[v] = true;
             v_scale[v] = surface_mesh::Vec3(DEFAULT_SPHERE_DIAMETER, DEFAULT_SPHERE_DIAMETER, DEFAULT_SPHERE_DIAMETER);
         }
-    }
-
-    void WireframeProcessing::fill_edge_wireframe_properties(Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
         for (Mesh::Edge e : mesh_.edges()) {
             e_inwireframe[e] = true;
             e_scale[e] = surface_mesh::Vec3(DEFAULT_CYLINDER_DIAMETER, DUMMY, DEFAULT_CYLINDER_DIAMETER);
