@@ -655,7 +655,7 @@ namespace mesh_processing {
 
     void MeshProcessing::load_mesh(const string &filename) {
         if (!mesh_.read(filename)) {
-            std::cerr << "Mesh not found, exiting." << std::endl;
+            std::cerr << "Mesh " << filename << "not found, exiting." << std::endl;
             exit(-1);
         }
 

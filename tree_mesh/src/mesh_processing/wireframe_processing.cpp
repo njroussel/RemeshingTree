@@ -8,9 +8,12 @@
 #include <map>
 
 #define IDENTITY glm::mat4(1.0f)
-#define ZERO_VEC surface_mesh::Vec3(0.0f, 0.,0f, 0.0f)
+#define ZERO_VEC surface_mesh::Vec3(0.0f, 0.0f, 0.0f)
+#define DUMMY 1.0f
 
 #define USE_PROPERTY false
+#define DEFAULT_SPHERE_DIAMETER 0.02f
+#define DEFAULT_CYLINDER_DIAMETER 0.02f
 
 /* Some conversion macros. */
 #define glm_to_Vec3(v) \
@@ -36,7 +39,7 @@ namespace mesh_processing {
         Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
         for (Mesh::Vertex v : mesh_.vertices()) {
             v_wireframe[v] = true;
-            v_scale[v] = surface_mesh::Vec3(spheres_radius, spheres_radius, spheres_radius);
+            v_scale[v] = surface_mesh::Vec3(DEFAULT_SPHERE_DIAMETER, DEFAULT_SPHERE_DIAMETER, DEFAULT_SPHERE_DIAMETER);
         }
     }
 
@@ -45,13 +48,15 @@ namespace mesh_processing {
         Mesh::Edge_property<surface_mesh::Vec3> e_scale = mesh_.edge_property<surface_mesh::Vec3>("e:wireframe_cylinder_scale", ZERO_VEC); 
         for (Mesh::Edge e : mesh_.edges()) {
             e_wireframe[e] = true;
-            e_scale[e] = 
+            e_scale[e] = surface_mesh::Vec3(DEFAULT_CYLINDER_DIAMETER, DUMMY, DEFAULT_CYLINDER_DIAMETER);
         }
     }
 
     void WireframeProcessing::create_wire_frame() {
-        replace_vertices(spheres_radius);
-        replace_edges(cylinder_radius);
+        fill_vertex_wireframe_properties();
+        fill_edge_wireframe_properties();
+        replace_vertices();
+        replace_edges();
         if (result_.points().size() > 0) {
             swap(result_);
         }
@@ -89,7 +94,7 @@ namespace mesh_processing {
                 Mesh::Vertex v1 = mesh_.vertex(e, 1);
                 Point p0 = mesh_.position(v0);
                 Point p1 = mesh_.position(v1);
-                surface_mesh::Vec3 scale = surface_mesh::Vec3(e_scale[0], mesh_.edge_length(e), e_scale[2]);
+                surface_mesh::Vec3 scale = surface_mesh::Vec3(e_scale[e][0], mesh_.edge_length(e), e_scale[e][2]);
                 Point pos = (p0 + p1) / 2.0f;
 
                 glm::vec3 edge_dir = Vec3_to_glm((p0 - p1).normalize());
