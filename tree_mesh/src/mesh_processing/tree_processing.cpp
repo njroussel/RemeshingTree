@@ -8,33 +8,71 @@ namespace mesh_processing {
             const float cylinder_base_diameter) : WireframeProcessing(filename, sphere_filename, cylinder_filename) {
         sphere_base_diameter_ = sphere_base_diameter;
         cylinder_base_diameter_ = cylinder_base_diameter;
+        std::srand(std::time(0)); // use current time as seed for random generator
     }
 
     TreeProcessing::~TreeProcessing() {}
 
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
-        const float lowest_point = mesh_.position(get_lowest_point(mesh_))[1];
-        const float highest_point = mesh_.position(get_highest_point(mesh_))[1];
-        
-        for (Mesh::Vertex v : mesh_.vertices()) {
-            float relative_height = (mesh_.position(v)[1] - lowest_point) / (highest_point - lowest_point);
-            v_inwireframe[v] = true;
-            v_scale[v] = (1.0f - relative_height) * sphere_base_diameter_;
-        }
-
-        for (Mesh::Edge e : mesh_.edges()) {
-            Mesh::Vertex v0 = mesh_.vertex(e, 0);
-            Mesh::Vertex v1 = mesh_.vertex(e, 1);
-            Point p0 = mesh_.position(v0);
-            Point p1 = mesh_.position(v1);
-
-            float relative_height = (((p0+p1)/2.0f)[1] - lowest_point) / (highest_point - lowest_point);
-            e_inwireframe[e] = true;
-            e_scale[e] = (1.0f - relative_height) * cylinder_base_diameter_;
-        }
+        Mesh::Vertex lowest_vertex = get_lowest_point(mesh_);
+        inner_fill(lowest_vertex, v_inwireframe, v_scale, e_inwireframe, e_scale);
     }
 
-    void TreeProcessing::inner_fill(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
-        
+    static std::vector<Mesh::Vertex> take_n_first_higher_neighbors(std::vector<Mesh::Vertex> neighbors, int n) {
+        if (n > neighbors.size()) {
+            return std::vector<Mesh::Vertex> ();
+        }
+        std::vector<Mesh::Vertex> new_vec(neighbors.begin(), neighbors.begin()+n);
+        return new_vec;
+    }
+
+    void TreeProcessing::inner_fill(Mesh::Vertex root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+        v_inwireframe[root] = true;
+        Point root_pos = mesh_.position(root);
+        v_scale[root] = sphere_base_diameter_;
+        Mesh::Vertex_around_vertex_circulator vc, vc_end;
+        vc = mesh_.vertices(root);
+        vc_end = vc;
+
+        /* We take all neighbors that are higher than 'root'. */
+        std::vector<Mesh::Vertex> upper_neighbors;
+        do {
+            Mesh::Vertex candidate = *vc;
+            Point candidate_pos = mesh_.position(candidate);
+            if (!v_inwireframe[candidate]) {
+               upper_neighbors.push_back(candidate);
+            } 
+        } while(++vc!=vc_end);
+
+        int n = 0;
+        if (upper_neighbors.size() > 0) {
+            n = (2 + std::rand()) % upper_neighbors.size();
+            if (n == 0) {
+                n = upper_neighbors.size();
+            }
+        }
+#ifdef SORT_NEIGHBORS
+        sort(upper_neighbors.begin(), upper_neighbors.end(), 
+                    [this](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
+                    { 
+                        return this->mesh_.position(a)[1] < this->mesh_.position(b)[1];
+                    });
+#endif
+
+        std::cout << n << " neighbors, from " << upper_neighbors.size() << " will be chosen." << std::endl;
+        std::vector<Mesh::Vertex> next_roots = take_n_first_higher_neighbors(upper_neighbors, n);
+        std::cout << next_roots.size() << std::endl;
+
+        for (Mesh::Vertex r : next_roots) {
+            v_inwireframe[r] = true;
+        }
+
+        for (Mesh::Vertex r : next_roots) {
+            /* TODO : Make it converge faster !!!!! */
+            Mesh::Edge e = mesh_.find_edge(root, r);
+            e_inwireframe[e] = true;
+            e_scale[e] = cylinder_base_diameter_;
+            inner_fill(r, v_inwireframe, v_scale, e_inwireframe, e_scale);
+        }
     }
 }

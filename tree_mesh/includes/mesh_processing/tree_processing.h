@@ -1,6 +1,9 @@
 #pragma once
 
 #include "mesh_processing/wireframe_processing.h"
+#include <algorithm>
+#include <cstdlib>
+#include <ctime>
 
 namespace mesh_processing {
     class TreeProcessing : public WireframeProcessing {
@@ -14,7 +17,7 @@ namespace mesh_processing {
 
         private:
             virtual void fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
-            void inner_fill(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
+            void inner_fill(Mesh::Vertex root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
 
             float sphere_base_diameter_;
             float cylinder_base_diameter_;
