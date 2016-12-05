@@ -93,8 +93,8 @@ namespace mesh_processing {
         std::vector<Mesh::Vertex> neighbors;
         do {
             Mesh::Vertex n = *vc;
-            Point candidate_pos = mesh.position(n);
-            if (!v_inwireframe[n]) {
+            Point n_pos = mesh.position(n);
+            if (n_pos[1] > mesh.position(v)[1] && !v_inwireframe[n]) {
                neighbors.push_back(n);
             } 
         } while(++vc!=vc_end);
@@ -131,16 +131,8 @@ namespace mesh_processing {
             n = std::min(2, (int)neighbors.size());
         } 
         std::vector<Mesh::Vertex> next(neighbors.begin(), neighbors.begin()+n);
-        bool higher_neighbor_exists = false;
         for (Mesh::Vertex v : next) {
-            if (mesh_.position(v)[1] < mesh_.position(root)[1]) {
-                higher_neighbor_exists = true;
-                break;
-            }
-        }
-        if (!higher_neighbor_exists) {
-            std::cout << "No neig
-            return;
+            v_inwireframe[v] = true;
         }
         for (Mesh::Vertex v : next) {
             v_inwireframe[v] = true;
