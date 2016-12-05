@@ -101,15 +101,41 @@ namespace mesh_processing {
         return neighbors;
     }
 
-    void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
-        Mesh::Vertex lowest_vertex = get_lowest_point(mesh_);
-        v_inwireframe[lowest_vertex] = true;
+    static std::vector<Mesh::Vertex> get_n_lowest_vertices(Mesh &mesh, int n) {
+        std::vector<Mesh::Vertex> vertices;
+        for (Mesh::Vertex v : mesh.vertices()) {
+            vertices.push_back(v);
+        }
+        sort(vertices.begin(), vertices.end(), 
+            [&mesh](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
+            { 
+                return mesh.position(a)[1] < mesh.position(b)[1];
+            });
+        if (!(0 <= n && n < vertices.size())) {
+            throw std::string("NOPE.");
+        }
+        else {
+            return std::vector<Mesh::Vertex>(vertices.begin(), vertices.begin()+n);
+        }
+    }
 
-        inner_fill(lowest_vertex, v_inwireframe, v_scale, e_inwireframe, e_scale);
+    void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+        int root_count = 12;
+        std::vector<Mesh::Vertex> roots = get_n_lowest_vertices(mesh_, root_count);
+        //std::vector<Mesh::Vertex> tmp;
+        //tmp.push_back(roots[0]);
+        //tmp.push_back(roots[3]);
+        //tmp.push_back(roots[8]);
+        //roots = tmp;
+
+        for (Mesh::Vertex root : roots) {
+            v_inwireframe[root] = true;
+            inner_fill(root, v_inwireframe, v_scale, e_inwireframe, e_scale);
+        }
     }
 
     static bool split(float relative_height) {
-        float lambda = 3.0f;
+        float lambda = 1.0f;
         return (float)std::rand() / RAND_MAX < std::pow(relative_height, lambda);
     }
 
@@ -121,11 +147,24 @@ namespace mesh_processing {
         if (neighbors.size() == 0) {
             return;
         }
+#ifdef SORT_BY_HEIGHT
         sort(neighbors.begin(), neighbors.end(), 
             [this](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
             { 
-                return this->mesh_.position(a)[1] < this->mesh_.position(b)[1];
+                return this->mesh_.position(a)[1] > this->mesh_.position(b)[1];
             });
+#elif defined SORT_BY_ANGLE
+        sort(neighbors.begin(), neighbors.end(), 
+            [this, &root](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
+            { 
+                Point pa = this->mesh_.position(a);
+                Point pb = this->mesh_.position(b);
+                Point proot = this->mesh_.position(root);
+                float angle_a = std::acos(dot(pa, proot));
+                float angle_b = std::acos(dot(pb, proot));
+                return angle_a > angle_b;
+            });
+#endif
         int n = 1;
         if (split(relative)) {
             n = std::min(2, (int)neighbors.size());

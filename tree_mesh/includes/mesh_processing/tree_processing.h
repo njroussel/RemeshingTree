@@ -6,6 +6,7 @@
 #include <ctime>
 
 #define BETTER_ALGO 
+#define SORT_BY_HEIGHT
 
 namespace mesh_processing {
     class TreeProcessing : public WireframeProcessing {
