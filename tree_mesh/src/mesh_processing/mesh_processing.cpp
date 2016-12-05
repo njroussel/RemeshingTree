@@ -303,8 +303,8 @@ namespace mesh_processing {
             }
         } else if (remeshing_type == HEIGHT) {
             // Number of times the mean of the new length max can be.
-            float max_l = 6;
-            float min_l = 0.3;
+            float max_l = 20;
+            float min_l = 2;
 
             mean_length = 0;
             for (Mesh::Edge edge : mesh_.edges()) {
@@ -324,10 +324,15 @@ namespace mesh_processing {
                 }
             }
 
+#define fct(t) (1 - ((exp(t*2) - 1) / (exp(1*2) - 1)))
+#define fct2(t) (0.5*(cos(t*3.14)+1))
+
             for (v_it = mesh_.vertices_begin(); v_it != v_end; ++v_it) {
                 float y = Point(mesh_.position(*v_it))[1];
-                float coef = min_l + (max_l - min_l) * (y - min_height) / (max_height - min_height);
-                target_length[*v_it] = mean_length * coef;
+                float tmp = ((y - min_height) / (max_height - min_height));
+                tmp = fct2(tmp);
+                float coef = min_l + (max_l - min_l) * tmp;
+                target_length[*v_it] = mean_length * coef * 2;
             }
         }
     }

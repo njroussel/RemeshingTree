@@ -71,7 +71,11 @@ namespace mesh_processing {
             /* TODO : Make it converge faster !!!!! */
             Mesh::Edge e = mesh_.find_edge(root, r);
             e_inwireframe[e] = true;
-            e_scale[e] = cylinder_base_diameter_;
+            float low = mesh_.position(get_lowest_point(mesh_))[1];
+            float high = mesh_.position(get_highest_point(mesh_))[1];
+            float mean = ((mesh_.position(r) + mesh_.position(root))/2.0f)[1];
+            float tmp = cylinder_base_diameter_ * (1.0f - (mean - low) / (high - low));
+            e_scale[e] = surface_mesh::Vec3(tmp, 1, tmp);
             inner_fill(r, v_inwireframe, v_scale, e_inwireframe, e_scale);
         }
     }
