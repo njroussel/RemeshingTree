@@ -13,6 +13,7 @@ namespace mesh_processing {
 
     TreeProcessing::~TreeProcessing() {}
 
+#ifdef FIRST_TRY
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
         Mesh::Vertex lowest_vertex = get_lowest_point(mesh_);
         inner_fill(lowest_vertex, v_inwireframe, v_scale, e_inwireframe, e_scale);
@@ -80,4 +81,53 @@ namespace mesh_processing {
             inner_fill(r, v_inwireframe, v_scale, e_inwireframe, e_scale);
         }
     }
+
+#elif defined BETTER_ALGO
+
+    std::vector<Mesh::Vertex> get_neighbors(Mesh mesh, Mesh::Vertex v, Mesh::Vertex_property<bool> v_inwireframe) {
+        Mesh::Vertex_around_vertex_circulator vc, vc_end;
+        vc = mesh.vertices(v);
+        vc_end = vc;
+
+        /* We take all neighbors that are higher than 'root'. */
+        std::vector<Mesh::Vertex> neighbors;
+        do {
+            Mesh::Vertex n = *vc;
+            Point candidate_pos = mesh.position(n);
+            if (!v_inwireframe[n]) {
+               neighbors.push_back(n);
+            } 
+        } while(++vc!=vc_end);
+        return neighbors;
+    }
+
+    void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+        Mesh::Vertex lowest_vertex = get_lowest_point(mesh_);
+        v_inwireframe[lowest_vertex] = true;
+
+        inner_fill(lowest_vertex, v_inwireframe, v_scale, e_inwireframe, e_scale);
+    }
+
+    void TreeProcessing::inner_fill(Mesh::Vertex root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+        std::vector<Mesh::Vertex> neighbors = get_neighbors(mesh_, root, v_inwireframe);
+        if (neighbors.size() == 0) {
+            return;
+        }
+        sort(neighbors.begin(), neighbors.end(), 
+            [this](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
+            { 
+                return this->mesh_.position(a)[1] < this->mesh_.position(b)[1];
+            });
+        Mesh::Vertex next = neighbors[neighbors.size()-1];
+        if (mesh_.position(next)[1] < mesh_.position(root)[1]) {
+            return;
+        }
+        v_inwireframe[next] = true;
+        v_scale[next] = surface_mesh::Vec3(sphere_base_diameter_, sphere_base_diameter_, sphere_base_diameter_);
+        Mesh::Edge e = mesh_.find_edge(root, next);
+        e_inwireframe[e] = true;
+        e_scale[e] = surface_mesh::Vec3(cylinder_base_diameter_, cylinder_base_diameter_, cylinder_base_diameter_);
+        inner_fill(next, v_inwireframe, v_scale, e_inwireframe, e_scale);
+    }
+#endif
 }

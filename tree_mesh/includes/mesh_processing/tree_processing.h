@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <ctime>
 
+#define BETTER_ALGO 
+
 namespace mesh_processing {
     class TreeProcessing : public WireframeProcessing {
         public:
