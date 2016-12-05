@@ -108,7 +108,15 @@ namespace mesh_processing {
         inner_fill(lowest_vertex, v_inwireframe, v_scale, e_inwireframe, e_scale);
     }
 
+    static bool split(float relative_height) {
+        float lambda = 3.0f;
+        return (float)std::rand() / RAND_MAX < std::pow(relative_height, lambda);
+    }
+
     void TreeProcessing::inner_fill(Mesh::Vertex root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+        float low = mesh_.position(get_lowest_point(mesh_))[1];
+        float high = mesh_.position(get_highest_point(mesh_))[1];
+        float relative = (mesh_.position(root)[1] - low) / (high - low);
         std::vector<Mesh::Vertex> neighbors = get_neighbors(mesh_, root, v_inwireframe);
         if (neighbors.size() == 0) {
             return;
@@ -118,16 +126,30 @@ namespace mesh_processing {
             { 
                 return this->mesh_.position(a)[1] < this->mesh_.position(b)[1];
             });
-        Mesh::Vertex next = neighbors[neighbors.size()-1];
-        if (mesh_.position(next)[1] < mesh_.position(root)[1]) {
+        int n = 1;
+        if (split(relative)) {
+            n = std::min(2, (int)neighbors.size());
+        } 
+        std::vector<Mesh::Vertex> next(neighbors.begin(), neighbors.begin()+n);
+        bool higher_neighbor_exists = false;
+        for (Mesh::Vertex v : next) {
+            if (mesh_.position(v)[1] < mesh_.position(root)[1]) {
+                higher_neighbor_exists = true;
+                break;
+            }
+        }
+        if (!higher_neighbor_exists) {
+            std::cout << "No neig
             return;
         }
-        v_inwireframe[next] = true;
-        v_scale[next] = surface_mesh::Vec3(sphere_base_diameter_, sphere_base_diameter_, sphere_base_diameter_);
-        Mesh::Edge e = mesh_.find_edge(root, next);
-        e_inwireframe[e] = true;
-        e_scale[e] = surface_mesh::Vec3(cylinder_base_diameter_, cylinder_base_diameter_, cylinder_base_diameter_);
-        inner_fill(next, v_inwireframe, v_scale, e_inwireframe, e_scale);
+        for (Mesh::Vertex v : next) {
+            v_inwireframe[v] = true;
+            v_scale[v] = surface_mesh::Vec3(sphere_base_diameter_, sphere_base_diameter_, sphere_base_diameter_);
+            Mesh::Edge e = mesh_.find_edge(root, v);
+            e_inwireframe[e] = true;
+            e_scale[e] = surface_mesh::Vec3(cylinder_base_diameter_, cylinder_base_diameter_, cylinder_base_diameter_);
+            inner_fill(v, v_inwireframe, v_scale, e_inwireframe, e_scale);
+        }
     }
 #endif
 }
