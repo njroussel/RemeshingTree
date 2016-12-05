@@ -15,6 +15,8 @@
 #include <surface_mesh/types.h>
 #include <Eigen/Sparse>
 
+#define gaussian(t) (exp(- (t) * (t) / (2 * 0.25*0.25)))
+
 using std::string;
 using surface_mesh::Point;
 using surface_mesh::Scalar;

@@ -324,14 +324,11 @@ namespace mesh_processing {
                 }
             }
 
-#define fct(t) (1 - ((exp(t*2) - 1) / (exp(1*2) - 1)))
-#define fct2(t) (0.5*(cos(t*3.14)+1))
-#define fct3(t) (exp(- (t) * (t) / (2 * 0.25*0.25)))
 
             for (v_it = mesh_.vertices_begin(); v_it != v_end; ++v_it) {
                 float y = Point(mesh_.position(*v_it))[1];
                 float tmp = ((y - min_height) / (max_height - min_height));
-                tmp = fct3(tmp);
+                tmp = gaussian(tmp);
                 float coef = min_l + (max_l - min_l) * tmp;
                 target_length[*v_it] = mean_length * coef * 2;
             }
