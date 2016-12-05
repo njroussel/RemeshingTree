@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <tuple> 
 
 #define BETTER_ALGO 
 #define SORT_BY_HEIGHT

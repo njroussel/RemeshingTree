@@ -122,11 +122,17 @@ namespace mesh_processing {
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
         int root_count = 12;
         std::vector<Mesh::Vertex> roots = get_n_lowest_vertices(mesh_, root_count);
-        //std::vector<Mesh::Vertex> tmp;
-        //tmp.push_back(roots[0]);
-        //tmp.push_back(roots[3]);
-        //tmp.push_back(roots[8]);
-        //roots = tmp;
+        std::vector<Mesh::Vertex> tmp;
+        Point root_pos = mesh_.position(roots[0]);
+        tmp.push_back(roots[0]);
+        sort(roots.begin(), roots.end(), 
+            [this, root_pos](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
+            { 
+                return norm(this->mesh_.position(a)-root_pos) > norm(this->mesh_.position(b)-root_pos);
+            });
+        tmp.push_back(roots[0]);
+        tmp.push_back(roots[roots.size()/2]);
+        roots = tmp;
 
         for (Mesh::Vertex root : roots) {
             v_inwireframe[root] = true;
@@ -143,6 +149,12 @@ namespace mesh_processing {
         float low = mesh_.position(get_lowest_point(mesh_))[1];
         float high = mesh_.position(get_highest_point(mesh_))[1];
         float relative = (mesh_.position(root)[1] - low) / (high - low);
+
+        float sphere_scale = gaussian(relative) * sphere_base_diameter_;
+        v_scale[root] = surface_mesh::Vec3(sphere_scale, sphere_scale, sphere_scale);
+        Point root_pos = mesh_.position(root);
+
+
         std::vector<Mesh::Vertex> neighbors = get_neighbors(mesh_, root, v_inwireframe);
         if (neighbors.size() == 0) {
             return;
@@ -174,11 +186,15 @@ namespace mesh_processing {
             v_inwireframe[v] = true;
         }
         for (Mesh::Vertex v : next) {
+            Point v_pos = mesh_.position(v);
             v_inwireframe[v] = true;
-            v_scale[v] = surface_mesh::Vec3(sphere_base_diameter_, sphere_base_diameter_, sphere_base_diameter_);
             Mesh::Edge e = mesh_.find_edge(root, v);
             e_inwireframe[e] = true;
-            e_scale[e] = surface_mesh::Vec3(cylinder_base_diameter_, cylinder_base_diameter_, cylinder_base_diameter_);
+            float mean_edge_height = ((root_pos + v_pos) / 2.0f)[1];
+            mean_edge_height = (mean_edge_height - low) / (high - low);
+            mean_edge_height = gaussian(mean_edge_height);
+            float edge_scale = mean_edge_height * cylinder_base_diameter_;
+            e_scale[e] = surface_mesh::Vec3(edge_scale, 1.0f, edge_scale);
             inner_fill(v, v_inwireframe, v_scale, e_inwireframe, e_scale);
         }
     }
