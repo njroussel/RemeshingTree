@@ -30,3 +30,6 @@
 # build files
 build/
 tags
+
+# geralt model
+models/geralt.obj
