@@ -5,8 +5,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <tuple> 
+#include <queue>
 
 #define BETTER_ALGO 
+#define USE_STACK
 #define SORT_BY_HEIGHT
 
 namespace mesh_processing {
@@ -21,7 +23,11 @@ namespace mesh_processing {
 
         private:
             virtual void fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
+#ifdef USE_STACK
+            void inner_fill(std::queue<Mesh::Vertex> to_process, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
+#else
             void inner_fill(Mesh::Vertex root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
+#endif
 
             float sphere_base_diameter_;
             float cylinder_base_diameter_;

@@ -89,7 +89,6 @@ namespace mesh_processing {
         vc = mesh.vertices(v);
         vc_end = vc;
 
-        /* We take all neighbors that are higher than 'root'. */
         std::vector<Mesh::Vertex> neighbors;
         do {
             Mesh::Vertex n = *vc;
@@ -134,10 +133,18 @@ namespace mesh_processing {
         tmp.push_back(roots[roots.size()/2]);
         roots = tmp;
 
+#ifdef USE_STACK
+        std::queue<Mesh::Vertex> to_process;
+        for (Mesh::Vertex root : roots) {
+            to_process.push(root);
+        }
+        inner_fill(to_process, v_inwireframe, v_scale, e_inwireframe, e_scale);
+#else
         for (Mesh::Vertex root : roots) {
             v_inwireframe[root] = true;
             inner_fill(root, v_inwireframe, v_scale, e_inwireframe, e_scale);
         }
+#endif
     }
 
     static bool split(float relative_height) {
@@ -145,7 +152,15 @@ namespace mesh_processing {
         return (float)std::rand() / RAND_MAX < std::pow(relative_height, lambda);
     }
 
+#ifdef USE_STACK
+    void TreeProcessing::inner_fill(std::queue<Mesh::Vertex> to_process, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+        std::cout << "Stack implementation used." << std::endl;
+        while (!to_process.empty()) {
+            Mesh::Vertex root = to_process.front();
+            to_process.pop();
+#elif
     void TreeProcessing::inner_fill(Mesh::Vertex root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+#endif
         float low = mesh_.position(get_lowest_point(mesh_))[1];
         float high = mesh_.position(get_highest_point(mesh_))[1];
         float relative = (mesh_.position(root)[1] - low) / (high - low);
@@ -157,7 +172,11 @@ namespace mesh_processing {
 
         std::vector<Mesh::Vertex> neighbors = get_neighbors(mesh_, root, v_inwireframe);
         if (neighbors.size() == 0) {
+#ifdef USE_STACK
+            continue;
+#else
             return;
+#endif
         }
 #ifdef SORT_BY_HEIGHT
         sort(neighbors.begin(), neighbors.end(), 
@@ -196,8 +215,15 @@ namespace mesh_processing {
             float edge_scale = mean_edge_height * cylinder_base_diameter_;
             edge_scale = std::max(edge_scale, 0.02f);
             e_scale[e] = surface_mesh::Vec3(edge_scale, 1.0f, edge_scale);
+#ifdef USE_STACK
+            to_process.push(v);
+#else
             inner_fill(v, v_inwireframe, v_scale, e_inwireframe, e_scale);
+#endif
         }
+#ifdef USE_STACK
+        } // for while loop
+#endif
     }
 #endif
 }
