@@ -194,6 +194,7 @@ namespace mesh_processing {
             mean_edge_height = (mean_edge_height - low) / (high - low);
             mean_edge_height = gaussian(mean_edge_height);
             float edge_scale = mean_edge_height * cylinder_base_diameter_;
+            edge_scale = std::max(edge_scale, 0.02f);
             e_scale[e] = surface_mesh::Vec3(edge_scale, 1.0f, edge_scale);
             inner_fill(v, v_inwireframe, v_scale, e_inwireframe, e_scale);
         }
