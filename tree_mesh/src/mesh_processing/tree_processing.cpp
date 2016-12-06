@@ -124,30 +124,32 @@ namespace mesh_processing {
 
 
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
-	    int root_count = 12;
+	    int root_count = 24;
 	    std::vector<Mesh::Vertex> roots = get_n_lowest_vertices(mesh_, root_count);
 	    std::vector<Mesh::Vertex> tmp;
 	    Point root_pos = mesh_.position(roots[0]);
-	    tmp.push_back(roots[0]);
-	    sort(roots.begin(), roots.end(), 
-			    [this, root_pos](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
-			    { 
-			    return norm(this->mesh_.position(a)-root_pos) > norm(this->mesh_.position(b)-root_pos);
-			    });
-	    tmp.push_back(roots[0]);
-	    tmp.push_back(roots[roots.size()/2]);
-	    roots = tmp;
+	    //tmp.push_back(roots[0]);
+	    //sort(roots.begin(), roots.end(), 
+		//	    [this, root_pos](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
+		//	    { 
+		//	    return norm(this->mesh_.position(a)-root_pos) > norm(this->mesh_.position(b)-root_pos);
+		//	    });
+	    //tmp.push_back(roots[0]);
+	    //tmp.push_back(roots[roots.size()/2]);
+	    //roots = tmp;
+
+        Mesh::Vertex_property<int> length = mesh_.vertex_property<int>("v:branch_length", 0); 
 
 #ifdef USE_STACK
 	    std::queue<Mesh::Vertex> to_process;
 	    for (Mesh::Vertex root : roots) {
 		    to_process.push(root);
 	    }
-	    inner_fill(to_process, v_inwireframe, v_scale, e_inwireframe, e_scale);
+	    inner_fill(to_process, v_inwireframe, v_scale, e_inwireframe, e_scale, length);
 #else
 	    for (Mesh::Vertex root : roots) {
 		    v_inwireframe[root] = true;
-		    inner_fill(root, v_inwireframe, v_scale, e_inwireframe, e_scale);
+		    inner_fill(root, v_inwireframe, v_scale, e_inwireframe, e_scale, length);
 	    }
 #endif
     }
@@ -162,13 +164,13 @@ namespace mesh_processing {
     }
 
 #ifdef USE_STACK
-    void TreeProcessing::inner_fill(std::queue<Mesh::Vertex> to_process, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+    void TreeProcessing::inner_fill(std::queue<Mesh::Vertex> to_process, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length) {
 	    std::cout << "Stack implementation used." << std::endl;
 	    while (!to_process.empty()) {
 		    Mesh::Vertex root = to_process.front();
 		    to_process.pop();
 #elif
-		    void TreeProcessing::inner_fill(Mesh::Vertex root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+		    void TreeProcessing::inner_fill(Mesh::Vertex root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length) {
 #endif
 			    float low = mesh_.position(get_lowest_point(mesh_))[1];
 			    float high = mesh_.position(get_highest_point(mesh_))[1];
@@ -202,34 +204,45 @@ namespace mesh_processing {
 					    Point proot = this->mesh_.position(root);
 					    float angle_a = std::acos(dot(pa, proot));
 					    float angle_b = std::acos(dot(pb, proot));
-					    return angle_a > angle_b;
+					    return angle_a < angle_b;
 					    });
+                //std::vector<Mesh::Vertex> tmp;
+                //for (Mesh::Vertex a : neighbors) {
+                //    Point pa = this->mesh_.position(a);
+                //    Point proot = this->mesh_.position(root);
+                //    float angle_a = std::acos(dot(pa, proot));
+                //    if (angle
+                //}
 #endif
 			    int n = 1;
+                const int length_threshold = 128;
 			    if (split(relative)) {
 				    n = std::min(2, (int)neighbors.size());
 			    } 
-			    std::vector<Mesh::Vertex> next(neighbors.begin(), neighbors.begin()+n);
-			    for (Mesh::Vertex v : next) {
-				    v_inwireframe[v] = true;
-			    }
-			    for (Mesh::Vertex v : next) {
-				    Point v_pos = mesh_.position(v);
-				    v_inwireframe[v] = true;
-				    Mesh::Edge e = mesh_.find_edge(root, v);
-				    e_inwireframe[e] = true;
-				    float mean_edge_height = ((root_pos + v_pos) / 2.0f)[1];
-				    mean_edge_height = (mean_edge_height - low) / (high - low);
-				    mean_edge_height = gaussian(mean_edge_height);
-				    float edge_scale = mean_edge_height * cylinder_base_diameter_;
-				    edge_scale = std::max(edge_scale, 0.02f);
-				    e_scale[e] = surface_mesh::Vec3(edge_scale, 1.0f, edge_scale);
+                if (v_length[root] < length_threshold) {
+                    std::vector<Mesh::Vertex> next(neighbors.begin(), neighbors.begin()+n);
+                    for (Mesh::Vertex v : next) {
+                        v_inwireframe[v] = true;
+                    }
+                    for (Mesh::Vertex v : next) {
+                        Point v_pos = mesh_.position(v);
+                        v_inwireframe[v] = true;
+                        v_length[v] = v_length[root] + 1;
+                        Mesh::Edge e = mesh_.find_edge(root, v);
+                        e_inwireframe[e] = true;
+                        float mean_edge_height = ((root_pos + v_pos) / 2.0f)[1];
+                        mean_edge_height = (mean_edge_height - low) / (high - low);
+                        mean_edge_height = gaussian(mean_edge_height);
+                        float edge_scale = mean_edge_height * cylinder_base_diameter_;
+                        edge_scale = std::max(edge_scale, 0.02f);
+                        e_scale[e] = surface_mesh::Vec3(edge_scale, 1.0f, edge_scale);
 #ifdef USE_STACK
-				    to_process.push(v);
+                        to_process.push(v);
 #else
-				    inner_fill(v, v_inwireframe, v_scale, e_inwireframe, e_scale);
+                        inner_fill(v, v_inwireframe, v_scale, e_inwireframe, e_scale);
 #endif
-			    }
+                    }
+                }
 #ifdef USE_STACK
 		    } // for while loop
 #endif
