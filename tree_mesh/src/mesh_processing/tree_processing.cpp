@@ -80,7 +80,7 @@ namespace mesh_processing {
 
     static bool split(float relative_height) {
         float lambda = 1.0f;
-        const float upper_limit_threshold = 0.7f;
+        const float upper_limit_threshold = 1.0f;
         if (relative_height > upper_limit_threshold) {
             return false;
         }
@@ -121,6 +121,9 @@ namespace mesh_processing {
             neighbors = new_nei;
 
             if (neighbors.size() == 0) {
+                //if (relative > 0.8) {
+                //    std::cout << "Stop at length : " << v_length[root] << std::endl;
+                //}
                 continue;
             }
 #ifdef SORT_BY_HEIGHT
@@ -142,7 +145,7 @@ namespace mesh_processing {
             });
 #endif
             int n = 1;
-            const int length_threshold = 128;
+            const int length_threshold = 256;
             if (split(relative)) {
                 n = std::min(2, (int)neighbors.size());
             } 
