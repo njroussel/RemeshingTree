@@ -20,6 +20,8 @@ namespace mesh_processing {
                            const float sphere_base_diameter,
                            const float cylinder_base_diameter);
             ~TreeProcessing();
+	    
+	    void export_mesh(const std::string& filename);
 
         private:
             virtual void fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);

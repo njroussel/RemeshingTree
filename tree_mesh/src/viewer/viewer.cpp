@@ -308,8 +308,13 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
             }
             });
 
-    new Label(window_, "Display Control", "sans-bold");
+    b = new Button(window_, "Export Mesh");
+    b->setCallback([this]() {
+            this->mesh_->export_mesh("hello.obj");
+            });
 
+    new Label(window_, "Display Control", "sans-bold");
+   
     b = new Button(window_, "Wireframe");
     b->setFlags(Button::ToggleButton);
     b->setChangeCallback([this](bool wireframe) {

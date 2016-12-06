@@ -31,7 +31,12 @@ namespace mesh_processing {
     WireframeProcessing::~WireframeProcessing(void) {
 
     }
-
+	
+    
+    void WireframeProcessing::export_mesh(const std::string& filename){
+	    mesh_.write(filename);
+    }
+   
     void WireframeProcessing::create_wire_frame() {
         Mesh::Vertex_property<bool> v_inwireframe = mesh_.vertex_property<bool>("v:in_wireframe", false); 
         Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
