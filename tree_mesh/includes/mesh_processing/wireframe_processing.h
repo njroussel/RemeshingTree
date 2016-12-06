@@ -13,6 +13,8 @@ namespace mesh_processing {
 
             void create_wire_frame(void);
 
+	    void export_mesh(const std::string& filename);
+
         protected:
             void replace_vertices();
             void replace_edges();
