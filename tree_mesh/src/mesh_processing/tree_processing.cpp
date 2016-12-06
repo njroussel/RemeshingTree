@@ -149,6 +149,10 @@ namespace mesh_processing {
 
     static bool split(float relative_height) {
         float lambda = 1.0f;
+        const float upper_limit_threshold = 0.7f;
+        if (relative_height > upper_limit_threshold) {
+            return false;
+        }
         return (float)std::rand() / RAND_MAX < std::pow(relative_height, lambda);
     }
 
