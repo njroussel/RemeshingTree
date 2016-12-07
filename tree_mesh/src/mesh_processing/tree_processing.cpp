@@ -82,9 +82,11 @@ namespace mesh_processing {
         float lambda = 1.0f;
         const float upper_limit_threshold = 1.0f;
         if (relative_height > upper_limit_threshold) {
-            return false;
+            return (float)std::rand() / RAND_MAX < 1.0f - relative_height;
         }
-        return (float)std::rand() / RAND_MAX < std::pow(relative_height, lambda);
+        else {
+            return (float)std::rand() / RAND_MAX < std::pow(relative_height, lambda);
+        }
     }
 
     void TreeProcessing::inner_fill(std::queue<recursion_data_t> to_process, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length) {
@@ -105,6 +107,7 @@ namespace mesh_processing {
 
             std::vector<Mesh::Vertex> neighbors = get_neighbors(mesh_, root, v_inwireframe);
             std::vector<Mesh::Vertex> new_nei(neighbors.size());
+            
             auto it = std::copy_if (neighbors.begin(), neighbors.end(), new_nei.begin(),
                     [this, root, last](Mesh::Vertex &v) {
                         Point proot = this->mesh_.position(root);
