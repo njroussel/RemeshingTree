@@ -15,10 +15,11 @@
 #include <surface_mesh/types.h>
 #include <Eigen/Sparse>
 
+#define LOW_POLY_REMESHING
 #ifdef LOW_POLY_REMESHING
-#define gaussian(t) (exp(- (t) * (t) / (2 * 0.5*0.5)))
+#define gaussian(t) (exp(-std::pow((t) - 0.0f, 2.0f) / (2 * 0.5*0.5)))
 #else
-#define gaussian(t) (exp(- (t) * (t) / (2 * 0.25*0.25)))
+#define gaussian(t) (exp(-std::pow((t) - 0.0f, 2.0f) / (2 * 0.25*0.25)))
 #endif
 
 using std::string;
