@@ -55,27 +55,17 @@ namespace mesh_processing {
 
 
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
-	    int root_count = 24;
-	    std::vector<Mesh::Vertex> roots = get_n_lowest_vertices(mesh_, root_count);
-	    std::vector<Mesh::Vertex> tmp;
-	    Point root_pos = mesh_.position(roots[0]);
-	    //tmp.push_back(roots[0]);
-	    //sort(roots.begin(), roots.end(), 
-		//	    [this, root_pos](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
-		//	    { 
-		//	    return norm(this->mesh_.position(a)-root_pos) > norm(this->mesh_.position(b)-root_pos);
-		//	    });
-	    //tmp.push_back(roots[0]);
-	    //tmp.push_back(roots[roots.size()/2]);
-	    //roots = tmp;
-
+	    std::queue<recursion_data_t> to_process;
         Mesh::Vertex_property<int> length = mesh_.vertex_property<int>("v:branch_length", 0); 
 
-	    std::queue<recursion_data_t> to_process;
-	    for (Mesh::Vertex root : roots) {
-		    to_process.push({root, root});
-	    }
-	    inner_fill(to_process, v_inwireframe, v_scale, e_inwireframe, e_scale, length);
+        // We trace the root
+        build_main_root(v_inwireframe, v_scale, e_inwireframe, e_scale, length);
+        return;
+
+	    //for (Mesh::Vertex root : roots) {
+		//    to_process.push({root, root});
+	    //}
+	    //inner_fill(to_process, v_inwireframe, v_scale, e_inwireframe, e_scale, length);
     }
 
     static bool split(float relative_height) {
@@ -86,6 +76,58 @@ namespace mesh_processing {
         }
         else {
             return (float)std::rand() / RAND_MAX < std::pow(relative_height, lambda);
+        }
+    }
+
+
+    void TreeProcessing::build_main_root(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length) {
+        std::vector<Mesh::Vertex> main_root;
+        Mesh::Vertex_property<Color> v_color = mesh_.get_vertex_property<Color>("v:color");
+        Mesh::Vertex_property<bool> v_root = mesh_.vertex_property<bool>("v:root");
+
+        for (Mesh::Vertex v : mesh_.vertices()) {
+            if (v_color[v] != surface_mesh::Color(1, 1, 1)) {
+                main_root.push_back(v);
+                v_root[v] = true;
+            }
+        } 
+
+        Mesh::Vertex start;
+        float low = FLT_MAX;
+        for (Mesh::Vertex v : main_root) {
+            if (low > mesh_.position(v)[1]) {
+                low = mesh_.position(v)[1];
+                start = v;
+            } 
+        }
+
+        v_length[start] = 0;
+        build_main_root_inner(start, v_root, v_inwireframe, v_scale, e_inwireframe, e_scale, v_length);
+    }
+
+    void TreeProcessing::build_main_root_inner(Mesh::Vertex root, Mesh::Vertex_property<bool> v_root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length) {
+        std::cout << "Add vertex : " << root << std::endl;
+        v_inwireframe[root] = true;
+        const int max_root_len = 256;
+        int len = v_length[root];
+        float scale_factor = 1.0f - ((float)len / max_root_len);
+        v_scale[root] = scale_factor * sphere_base_diameter_;
+
+        std::vector<Mesh::Vertex> neighbors = get_neighbors(mesh_, root, v_inwireframe);
+        std::vector<Mesh::Vertex> root_nei(neighbors.size());
+        
+        auto it = std::copy_if (neighbors.begin(), neighbors.end(), root_nei.begin(),
+                [this, &v_root](Mesh::Vertex &v) {
+                    return v_root[v];
+                });
+        root_nei.resize(std::distance(root_nei.begin(),it));
+
+        for (Mesh::Vertex n : root_nei) {
+            Mesh::Edge e = mesh_.find_edge(root, n);
+            e_inwireframe[e] = true;
+            e_scale[e] = scale_factor * cylinder_base_diameter_;
+            v_length[n] = v_length[root] + 1;
+            build_main_root_inner(n, v_root, v_inwireframe, v_scale, e_inwireframe, e_scale, v_length);
         }
     }
 
