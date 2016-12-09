@@ -111,6 +111,7 @@ namespace mesh_processing {
         const int max_root_len = 117;
         int len = v_length[root];
         float scale_factor = 1.0f - ((float)len / max_root_len);
+        scale_factor = std::pow(scale_factor, 2);
         v_scale[root] = scale_factor * sphere_base_diameter_;
 
         std::vector<Mesh::Vertex> neighbors = get_neighbors(mesh_, root, v_inwireframe);
