@@ -101,7 +101,12 @@ namespace mesh_processing {
             float relative = (mesh_.position(root)[1] - low) / (high - low);
 
             float sphere_scale = gaussian(relative) * sphere_base_diameter_;
-            v_scale[root] = surface_mesh::Vec3(sphere_scale, sphere_scale, sphere_scale);
+            Point proot = this->mesh_.position(root);
+            float ratio_root = (proot[1] - low) / (high - low);
+            ratio_root = gaussian(ratio_root);
+            float root_scale = ratio_root * sphere_base_diameter_;
+            root_scale = std::max(root_scale, 0.02f);
+            v_scale[root] = surface_mesh::Vec3(root_scale, root_scale, root_scale);
             Point root_pos = mesh_.position(root);
 
 

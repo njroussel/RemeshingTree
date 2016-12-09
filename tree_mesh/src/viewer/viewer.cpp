@@ -388,7 +388,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
 
     initShaders();
     //mesh_ = new mesh_processing::MeshProcessing("../models/bunny.off");
-    mesh_ = new mesh_processing::TreeProcessing("../models/geralt.obj", "../models/sphere.obj", "../models/cylinder_medium_poly.obj", 0.02f, 0.2f);
+    mesh_ = new mesh_processing::TreeProcessing("../models/geralt.obj", "../models/sphere.obj", "../models/cylinder_medium_poly.obj", 0.2f, 0.2f);
     this->refresh_mesh();
     this->refresh_trackball_center();
 }

@@ -11,7 +11,7 @@
 #define ZERO_VEC surface_mesh::Vec3(0.0f, 0.0f, 0.0f)
 #define DUMMY 1.0f
 
-#define USE_PROPERTY false
+#define USE_PROPERTY true
 #define DEFAULT_SPHERE_DIAMETER 0.02f
 #define DEFAULT_CYLINDER_DIAMETER 0.02f
 
@@ -56,8 +56,8 @@ namespace mesh_processing {
     }
 
     void WireframeProcessing::replace_vertices() {
-        Mesh::Vertex_property<bool> v_wireframe = mesh_.vertex_property<bool>("v:in_wireframe", false); 
-        Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
+        Mesh::Vertex_property<bool> v_wireframe = mesh_.get_vertex_property<bool>("v:in_wireframe"); 
+        Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.get_vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale"); 
         Mesh::Vertex_iterator vc, vc_end;
         vc = mesh_.vertices_begin();
         vc_end = mesh_.vertices_end();
@@ -65,14 +65,15 @@ namespace mesh_processing {
             Mesh::Vertex v = *vc;
             if (!USE_PROPERTY || v_wireframe[v]) {
                 Point p = mesh_.position(v);
+                //std::cout << "Add vertex. Scale = " << v_scale[v] << std::endl;
                 insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, v_scale[v]);
             }
         } while (++vc != vc_end);
     }
 
     void WireframeProcessing::replace_edges() {
-        Mesh::Edge_property<bool> e_wireframe = mesh_.edge_property<bool>("e:in_wireframe", false); 
-        Mesh::Edge_property<surface_mesh::Vec3> e_scale = mesh_.edge_property<surface_mesh::Vec3>("e:wireframe_cylinder_scale", ZERO_VEC); 
+        Mesh::Edge_property<bool> e_wireframe = mesh_.get_edge_property<bool>("e:in_wireframe"); 
+        Mesh::Edge_property<surface_mesh::Vec3> e_scale = mesh_.get_edge_property<surface_mesh::Vec3>("e:wireframe_cylinder_scale"); 
         Mesh::Edge_iterator ec, ec_end;
         ec = mesh_.edges_begin();
         ec_end = mesh_.edges_end();
