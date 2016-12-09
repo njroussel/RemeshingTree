@@ -86,7 +86,7 @@ namespace mesh_processing {
         Mesh::Vertex_property<bool> v_root = mesh_.vertex_property<bool>("v:root");
 
         for (Mesh::Vertex v : mesh_.vertices()) {
-            if (v_color[v] != surface_mesh::Color(1, 1, 1)) {
+            if (v_color[v][1] < 0.5 && v_color[v][2] < 0.5) {
                 main_root.push_back(v);
                 v_root[v] = true;
             }
@@ -103,12 +103,12 @@ namespace mesh_processing {
 
         v_length[start] = 0;
         build_main_root_inner(start, v_root, v_inwireframe, v_scale, e_inwireframe, e_scale, v_length);
+        std::cout << "Max len = " << max_root_length << std::endl;
     }
 
     void TreeProcessing::build_main_root_inner(Mesh::Vertex root, Mesh::Vertex_property<bool> v_root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length) {
-        std::cout << "Add vertex : " << root << std::endl;
         v_inwireframe[root] = true;
-        const int max_root_len = 256;
+        const int max_root_len = 117;
         int len = v_length[root];
         float scale_factor = 1.0f - ((float)len / max_root_len);
         v_scale[root] = scale_factor * sphere_base_diameter_;
@@ -121,6 +121,13 @@ namespace mesh_processing {
                     return v_root[v];
                 });
         root_nei.resize(std::distance(root_nei.begin(),it));
+
+        if (root_nei.size()) {
+            std::cout << "Stop at length = " << v_length[root] << std::endl;
+            if (v_length[root] > max_root_length) {
+                max_root_length = v_length[root];
+            }
+        }
 
         for (Mesh::Vertex n : root_nei) {
             Mesh::Edge e = mesh_.find_edge(root, n);
