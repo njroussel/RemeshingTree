@@ -37,5 +37,6 @@ namespace mesh_processing {
             float sphere_base_diameter_;
             float cylinder_base_diameter_;
             float max_root_length;
+            std::vector<Mesh::Vertex> roots_;
     };
 }

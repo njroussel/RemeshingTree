@@ -60,16 +60,18 @@ namespace mesh_processing {
 
         // We trace the root
         build_main_root(v_inwireframe, v_scale, e_inwireframe, e_scale, length);
-        return;
 
-	    //for (Mesh::Vertex root : roots) {
-		//    to_process.push({root, root});
-	    //}
-	    //inner_fill(to_process, v_inwireframe, v_scale, e_inwireframe, e_scale, length);
+        int i = 0;
+	    for (Mesh::Vertex root : roots_) {
+            length[root] = 1;
+            if (++i%50 == 0)
+                to_process.push({root, root});
+	    }
+	    inner_fill(to_process, v_inwireframe, v_scale, e_inwireframe, e_scale, length);
     }
 
     static bool split(float relative_height) {
-        float lambda = 1.0f;
+        float lambda = 2.0f;
         const float upper_limit_threshold = 1.0f;
         if (relative_height > upper_limit_threshold) {
             return (float)std::rand() / RAND_MAX < 1.0f - relative_height;
@@ -81,20 +83,19 @@ namespace mesh_processing {
 
 
     void TreeProcessing::build_main_root(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length) {
-        std::vector<Mesh::Vertex> main_root;
         Mesh::Vertex_property<Color> v_color = mesh_.get_vertex_property<Color>("v:color");
         Mesh::Vertex_property<bool> v_root = mesh_.vertex_property<bool>("v:root");
 
         for (Mesh::Vertex v : mesh_.vertices()) {
             if (v_color[v][1] < 0.5 && v_color[v][2] < 0.5) {
-                main_root.push_back(v);
+                roots_.push_back(v);
                 v_root[v] = true;
             }
         } 
 
         Mesh::Vertex start;
         float low = FLT_MAX;
-        for (Mesh::Vertex v : main_root) {
+        for (Mesh::Vertex v : roots_) {
             if (low > mesh_.position(v)[1]) {
                 low = mesh_.position(v)[1];
                 start = v;
@@ -124,7 +125,6 @@ namespace mesh_processing {
         root_nei.resize(std::distance(root_nei.begin(),it));
 
         if (root_nei.size()) {
-            std::cout << "Stop at length = " << v_length[root] << std::endl;
             if (v_length[root] > max_root_length) {
                 max_root_length = v_length[root];
             }
@@ -140,7 +140,7 @@ namespace mesh_processing {
     }
 
     void TreeProcessing::inner_fill(std::queue<recursion_data_t> to_process, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length) {
-	    std::cout << "Stack implementation used." << std::endl;
+        Mesh::Vertex_property<bool> v_root = mesh_.vertex_property<bool>("v:root");
 	    while (!to_process.empty()) {
             recursion_data_t first = to_process.front();
 		    Mesh::Vertex root = first.root;
@@ -149,13 +149,20 @@ namespace mesh_processing {
             float low = mesh_.position(get_lowest_point(mesh_))[1];
             float high = mesh_.position(get_highest_point(mesh_))[1];
             float relative = (mesh_.position(root)[1] - low) / (high - low);
+            float len; // = v_length[root];
+            if (v_root[root]) {
+                len = 1.0f;
+            }
+            else {
+                len = v_length[root];
+            }
+            const int max_branch_length = 16;
 
-            float sphere_scale = gaussian(relative) * sphere_base_diameter_;
-            Point proot = this->mesh_.position(root);
-            float ratio_root = (proot[1] - low) / (high - low);
-            ratio_root = gaussian(ratio_root);
-            float root_scale = ratio_root * sphere_base_diameter_;
-            root_scale = std::max(root_scale, 0.02f);
+            float scale_factor = 1.0f - ((float)len / max_branch_length);
+            scale_factor = std::pow(scale_factor, 2);
+
+            float root_scale = scale_factor * 0.1f * sphere_base_diameter_;
+
             v_scale[root] = surface_mesh::Vec3(root_scale, root_scale, root_scale);
             Point root_pos = mesh_.position(root);
 
@@ -179,35 +186,14 @@ namespace mesh_processing {
             neighbors = new_nei;
 
             if (neighbors.size() == 0) {
-                //if (relative > 0.8) {
-                //    std::cout << "Stop at length : " << v_length[root] << std::endl;
-                //}
                 continue;
             }
-#ifdef SORT_BY_HEIGHT
-            sort(neighbors.begin(), neighbors.end(), 
-                [this](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
-                { 
-                    return this->mesh_.position(a)[1] > this->mesh_.position(b)[1];
-            });
-#elif defined SORT_BY_ANGLE
-            sort(neighbors.begin(), neighbors.end(), 
-                [this, &root](const Mesh::Vertex &a, const Mesh::Vertex &b) -> bool
-                { 
-                        Point pa = this->mesh_.position(a);
-                        Point pb = this->mesh_.position(b);
-                        Point proot = this->mesh_.position(root);
-                        float angle_a = std::acos(dot(pa, proot));
-                        float angle_b = std::acos(dot(pb, proot));
-                        return angle_a < angle_b;
-            });
-#endif
+
             int n = 1;
-            const int length_threshold = 256;
             if (split(relative)) {
                 n = std::min(2, (int)neighbors.size());
             } 
-            if (v_length[root] < length_threshold) {
+            if (len < max_branch_length) {
                 std::vector<Mesh::Vertex> next(neighbors.begin(), neighbors.begin()+n);
                 for (Mesh::Vertex v : next) {
                     v_inwireframe[v] = true;
@@ -215,13 +201,13 @@ namespace mesh_processing {
                 for (Mesh::Vertex v : next) {
                     Point v_pos = mesh_.position(v);
                     v_inwireframe[v] = true;
-                    v_length[v] = v_length[root] + 1;
+                    v_length[v] = len + 1;
                     Mesh::Edge e = mesh_.find_edge(root, v);
                     e_inwireframe[e] = true;
                     float mean_edge_height = ((root_pos + v_pos) / 2.0f)[1];
                     mean_edge_height = (mean_edge_height - low) / (high - low);
                     mean_edge_height = gaussian(mean_edge_height);
-                    float edge_scale = mean_edge_height * cylinder_base_diameter_;
+                    float edge_scale = scale_factor * 0.1f * cylinder_base_diameter_;
                     edge_scale = std::max(edge_scale, 0.02f);
                     e_scale[e] = surface_mesh::Vec3(edge_scale, 1.0f, edge_scale);
                     to_process.push({v, root});
