@@ -101,9 +101,7 @@ namespace mesh_processing {
                 Point pos_1 = normalize(this->mesh_.position(v1));
                 Point pos_2 = normalize(this->mesh_.position(v2));
                 float d = dot(pos_1, pos_2);
-                DEBUG("d = " << d);
                 float angle = std::acos(d);
-                DEBUG("angle = " << angle);
                 if (angle >= curr_angle) {
                     curr_angle = angle;
                     curr_1 = v1;
