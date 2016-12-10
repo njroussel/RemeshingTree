@@ -169,7 +169,6 @@ namespace mesh_processing {
 
             if (neighbors.size() > 0) {
                 /* Now we randomly take 'split_count' neighbors. */
-                // TODO: Actual randomness.
                 if (to_keep.size() < split_count && !close_to_branch) {
                     split_count = std::min(split_count, (int)neighbors.size());
 
