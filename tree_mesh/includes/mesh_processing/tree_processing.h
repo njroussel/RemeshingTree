@@ -38,6 +38,7 @@ namespace mesh_processing {
             bool is_root(Mesh::Vertex v);
             Mesh::Vertex get_lowest_root_vertex(void);
             bool split(Mesh::Vertex v);
+            std::pair<Mesh::Vertex, Mesh::Vertex> get_best_split_pair(Mesh::Vertex v, std::vector<Mesh::Vertex> neighbors);
 
             float sphere_base_diameter_;
             float cylinder_base_diameter_;

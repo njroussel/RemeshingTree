@@ -92,6 +92,25 @@ namespace mesh_processing {
         return max_length_ * p < v_abs_length_[v];
     }
 
+    std::pair<Mesh::Vertex, Mesh::Vertex> TreeProcessing::get_best_split_pair(Mesh::Vertex v, std::vector<Mesh::Vertex> neighbors) {
+        float curr_angle = FLT_MIN;
+        Mesh::Vertex curr_1;
+        Mesh::Vertex curr_2;
+        for (Mesh::Vertex v1 : neighbors) {
+            for (Mesh::Vertex v2 : neighbors) {
+                Point pos_1 = this->mesh_.position(v1);
+                Point pos_2 = this->mesh_.position(v2);
+                float angle = dot(pos_1, pos_2);
+                if (angle >= curr_angle) {
+                    curr_angle = angle;
+                    curr_1 = v1;
+                    curr_2 = v2;
+                }
+            }
+        }
+        return std::pair<Mesh::Vertex, Mesh::Vertex>(curr_1, curr_2);
+    }
+
 #define keep(v) \
     do { \
     to_keep.push_back(v); \
@@ -146,14 +165,6 @@ namespace mesh_processing {
             }
             neighbors_cpy = neighbors;
 
-
-            /* Now we decide weather we split or not. */
-            const bool split_condition = (v_rel_length_[current_vertex] >= 1.0f) && split(current_vertex);
-            int split_count = 1; /* Number of neigbors to take when splitting. 1 means no split. */
-            if (split_condition) {
-                split_count ++;
-            }
-
             /* The second condition to keep a neighbor is that the angle 
              * between the two branches 'looks' realistic. */
             for (Mesh::Vertex n : neighbors_cpy) {
@@ -165,47 +176,65 @@ namespace mesh_processing {
             }
             neighbors_cpy = neighbors; /* Not necessary, but here to avoid forgetting it. */
 
-            if (neighbors.size() > 0) {
+            if (neighbors.size() == 0) {
+                continue;
+            }
+
+            if (to_keep.size() < 2) {
+                /* Now we decide weather we split or not. */
+                const bool split_condition = (v_rel_length_[current_vertex] >= 1.5f) && split(current_vertex);
+                int split_count = 1 - to_keep.size(); /* Number of neigbors to take when splitting. 1 means no split. */
+                if (split_condition) {
+                    split_count ++;
+                }
+
                 /* Now we randomly take 'split_count' neighbors. */
-                if (to_keep.size() < split_count && !close_to_branch) {
+                if (to_keep.size() <= split_count && !close_to_branch) {
                     split_count = std::min(split_count, (int)neighbors.size());
 
-                    /* We try to follow the direction of the current branch as
-                     * much as possible, thus we would like to take the next
-                     * neighbor that minimizes the change of direction. */
-                    std::sort(neighbors.begin(), neighbors.end(), 
-                        [this, &current_vertex_pos, &last_vertex_pos](Mesh::Vertex &a, Mesh::Vertex &b) {
-                            Point a_pos = this->mesh_.position(a);
-                            Point b_pos = this->mesh_.position(b);
-                            float a_dot = dot(a_pos - current_vertex_pos, current_vertex_pos - last_vertex_pos);
-                            float b_dot = dot(b_pos - current_vertex_pos, current_vertex_pos - last_vertex_pos);
-                            return a_dot > b_dot;
-                        }
-                    );
-                    Mesh::Vertex next = neighbors[0];
-                    to_keep.push_back(next);
-                    to_keep.insert(to_keep.end(), neighbors.end()-(split_count-1), neighbors.end());
-                }
-
-                const bool split_occured = (to_keep.size() > 1);
-                /* Now that the neighbors are filtered we can process recursively. */
-                for (Mesh::Vertex n : to_keep) {
-                    Mesh::Edge e = mesh_.find_edge(current_vertex, n);
-                    const float edge_len = mesh_.edge_length(e);
-                    v_abs_length_[n] = v_abs_length_[current_vertex] + edge_len;
-                    if (split_occured) {
-                        total_splits_performed ++;
-                        v_rel_length_[n] = edge_len;
+                    if (split_count == 1) {
+                        /* We try to follow the direction of the current branch as
+                         * much as possible, thus we would like to take the next
+                         * neighbor that minimizes the change of direction. */
+                        std::sort(neighbors.begin(), neighbors.end(), 
+                            [this, &current_vertex_pos, &last_vertex_pos](Mesh::Vertex &a, Mesh::Vertex &b) {
+                                Point a_pos = this->mesh_.position(a);
+                                Point b_pos = this->mesh_.position(b);
+                                float a_dot = dot(a_pos - current_vertex_pos, current_vertex_pos - last_vertex_pos);
+                                float b_dot = dot(b_pos - current_vertex_pos, current_vertex_pos - last_vertex_pos);
+                                return a_dot > b_dot;
+                            }
+                        );
+                        Mesh::Vertex next = neighbors[0];
+                        to_keep.push_back(next);
                     }
                     else {
-                        v_rel_length_[n] = v_rel_length_[current_vertex] + edge_len;
+                        /* Split == 2. */
+                        auto best_pair = get_best_split_pair(current_vertex, neighbors);
+                        to_keep.push_back(std::get<0>(best_pair));
+                        to_keep.push_back(std::get<1>(best_pair));
                     }
-                    e_inwireframe_[e] = true;
-                    e_scale_[e] = length_scale_factor * cylinder_base_diameter_;
-                    v_inwireframe_[n] = true;
-
-                    to_process.push({n, current_vertex});
                 }
+            }
+
+            const bool split_occured = (to_keep.size() > 1);
+            /* Now that the neighbors are filtered we can process recursively. */
+            for (Mesh::Vertex n : to_keep) {
+                Mesh::Edge e = mesh_.find_edge(current_vertex, n);
+                const float edge_len = mesh_.edge_length(e);
+                v_abs_length_[n] = v_abs_length_[current_vertex] + edge_len;
+                if (split_occured) {
+                    total_splits_performed ++;
+                    v_rel_length_[n] = edge_len;
+                }
+                else {
+                    v_rel_length_[n] = v_rel_length_[current_vertex] + edge_len;
+                }
+                e_inwireframe_[e] = true;
+                e_scale_[e] = length_scale_factor * cylinder_base_diameter_;
+                v_inwireframe_[n] = true;
+
+                to_process.push({n, current_vertex});
             }
         }
         DEBUG(total_splits_performed << " splits performed.");
