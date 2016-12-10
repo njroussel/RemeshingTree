@@ -40,7 +40,8 @@ namespace mesh_processing {
     bool TreeProcessing::is_root(Mesh::Vertex v) {
         Mesh::Vertex_property<surface_mesh::Color> v_color = mesh_.get_vertex_property<surface_mesh::Color>("v:color");
         surface_mesh::Color c = v_color[v];
-        return c[1] <= 0.5f && c[2] <= 0.5f;
+        const float th = 0.2f;
+        return c[1] <= th && c[2] <= th;
     }
 
     Mesh::Vertex TreeProcessing::get_lowest_root_vertex(void) {
@@ -65,7 +66,8 @@ namespace mesh_processing {
         e_inwireframe_ = e_inwireframe;
         e_scale_ = e_scale;
         v_root_ = mesh_.vertex_property<bool>("v:is_root", false);
-        v_length_ = mesh_.vertex_property<float>("v:length", 0.0f);
+        v_abs_length_ = mesh_.vertex_property<float>("v:v_abslength", 0.0f);
+        v_rel_length_ = mesh_.vertex_property<float>("v:v_rellength", 0.0f);
 
         /* Fill is_root property */
         for (Mesh::Vertex v : mesh_.vertices()) {
@@ -98,8 +100,8 @@ namespace mesh_processing {
 
     void TreeProcessing::inner_fill(std::queue<branch_t> to_process) {
         const float max_length = 12.0f;
-	    while (!to_process.empty()) {
-            DEBUG("Queue size = " << to_process.size());
+        int split_count = 0;
+        while (!to_process.empty()) {
             branch_t current_branch = to_process.front();
             to_process.pop();
 
@@ -108,7 +110,9 @@ namespace mesh_processing {
             Point current_vertex_pos = mesh_.position(current_branch.root);
             Point last_vertex_pos = mesh_.position(current_branch.last);
 
-            const float current_length = v_length_[current_vertex];
+            DEBUG("Processing " << current_vertex);
+
+            const float current_length = v_abs_length_[current_vertex];
             if (current_length >= max_length) {
                 continue;
             }
@@ -116,11 +120,12 @@ namespace mesh_processing {
             v_scale_[current_vertex] = length_scale_factor * sphere_base_diameter_; // TODO
 
             std::vector<Mesh::Vertex> neighbors = get_neighbors(current_vertex, true);
+            std::vector<Mesh::Vertex> neighbors_cpy = neighbors;
             /* To keep will be the result of filtering the set of neighbors. */
             std::vector<Mesh::Vertex> to_keep;
 
             /* Deal with neighbors belonging to the root. */
-            for (Mesh::Vertex n : neighbors) {
+            for (Mesh::Vertex n : neighbors_cpy) {
                 if (v_root_[n]) {
                     if (v_root_[current_vertex]) {
                         /* We are allowed to continue our path on the root,
@@ -133,22 +138,52 @@ namespace mesh_processing {
                         ignore(n);
                     }
                 }
-            }
-
-            /* The second condition is that the angle between the two branches
-             * 'looks' realistic. */
-            for (Mesh::Vertex n : neighbors) {
-                Point last_dir = current_vertex_pos - last_vertex_pos;
-                Point new_dir = mesh_.position(n) - current_vertex_pos;
-                if (dot(last_dir, new_dir) >= 0.0f) {
-                    keep(n);
+                else {
                 }
             }
+            neighbors_cpy = neighbors;
 
+
+            /* Now we decide weather we split or not. */
+            const bool split_condition = (v_rel_length_[current_vertex] >= 0.5f);
+            int split_count = 1; /* Number of neigbors to take when splitting. 1 means no split. */
+            if (split_condition) {
+                split_count ++;
+                /* We 'reset' the relative length of the current vertex. */
+                v_rel_length_[current_vertex] = 0.0f;
+            }
+
+            /* The second condition to keep a neighbor is that the angle 
+             * between the two branches 'looks' realistic. */
+            for (Mesh::Vertex n : neighbors_cpy) {
+                Point last_dir = current_vertex_pos - last_vertex_pos;
+                Point new_dir = mesh_.position(n) - current_vertex_pos;
+                if (!(dot(last_dir, new_dir) >= 0.0f)) {
+                    ignore(n);
+                }
+            }
+            neighbors_cpy = neighbors; /* Not necessary, but here to avoid forgetting it. */
+
+            /* Now we randomly take 'split_count' neighbors. */
+            // TODO: Actual randomness.
+            if (to_keep.size() < split_count) {
+                split_count = std::min(split_count, (int)neighbors.size());
+                to_keep.insert(to_keep.end(), neighbors.begin(), neighbors.begin()+split_count);
+            }
+
+            const bool split_occured = (to_keep.size() > 1);
             /* Now that the neighbors are filtered we can process recursively. */
             for (Mesh::Vertex n : to_keep) {
                 Mesh::Edge e = mesh_.find_edge(current_vertex, n);
-                v_length_[n] = v_length_[current_vertex] + mesh_.edge_length(e);
+                const float edge_len = mesh_.edge_length(e);
+                v_abs_length_[n] = v_abs_length_[current_vertex] + edge_len;
+                if (split_occured) {
+                    split_count ++;
+                    v_rel_length_[n] = edge_len;
+                }
+                else {
+                    v_rel_length_[n] = v_rel_length_[current_vertex] + edge_len;
+                }
                 e_inwireframe_[e] = true;
                 e_scale_[e] = length_scale_factor * cylinder_base_diameter_; // TODO
                 v_inwireframe_[n] = true;
@@ -156,5 +191,6 @@ namespace mesh_processing {
                 to_process.push({n, current_vertex});
             }
         }
+        DEBUG(split_count << " splits performed.");
     }
 }

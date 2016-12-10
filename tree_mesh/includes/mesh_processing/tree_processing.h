@@ -49,7 +49,8 @@ namespace mesh_processing {
             Mesh::Vertex_property<surface_mesh::Vec3> v_scale_;
             Mesh::Edge_property<bool> e_inwireframe_;
             Mesh::Edge_property<surface_mesh::Vec3> e_scale_;
-            Mesh::Vertex_property<float> v_length_;
+            Mesh::Vertex_property<float> v_abs_length_;
+            Mesh::Vertex_property<float> v_rel_length_;
             Mesh::Vertex_property<bool> v_root_;
     };
 }
