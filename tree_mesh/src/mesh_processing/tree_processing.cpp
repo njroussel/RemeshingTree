@@ -99,8 +99,8 @@ namespace mesh_processing {
     } while(0);
 
     void TreeProcessing::inner_fill(std::queue<branch_t> to_process) {
-        const float max_length = 12.0f;
-        int split_count = 0;
+        const float max_length = 13.0f;
+        int total_splits_performed = 0;
         while (!to_process.empty()) {
             branch_t current_branch = to_process.front();
             to_process.pop();
@@ -109,8 +109,6 @@ namespace mesh_processing {
             Mesh::Vertex last_vertex = current_branch.last;
             Point current_vertex_pos = mesh_.position(current_branch.root);
             Point last_vertex_pos = mesh_.position(current_branch.last);
-
-            DEBUG("Processing " << current_vertex);
 
             const float current_length = v_abs_length_[current_vertex];
             if (current_length >= max_length) {
@@ -138,16 +136,15 @@ namespace mesh_processing {
                         ignore(n);
                     }
                 }
-                else {
-                }
             }
             neighbors_cpy = neighbors;
 
 
             /* Now we decide weather we split or not. */
-            const bool split_condition = (v_rel_length_[current_vertex] >= 0.5f);
+            const bool split_condition = (v_rel_length_[current_vertex] >= 2.0f);
             int split_count = 1; /* Number of neigbors to take when splitting. 1 means no split. */
             if (split_condition) {
+                DEBUG("rel_length = " << v_rel_length_[current_vertex]);
                 split_count ++;
                 /* We 'reset' the relative length of the current vertex. */
                 v_rel_length_[current_vertex] = 0.0f;
@@ -164,33 +161,50 @@ namespace mesh_processing {
             }
             neighbors_cpy = neighbors; /* Not necessary, but here to avoid forgetting it. */
 
-            /* Now we randomly take 'split_count' neighbors. */
-            // TODO: Actual randomness.
-            if (to_keep.size() < split_count) {
-                split_count = std::min(split_count, (int)neighbors.size());
-                to_keep.insert(to_keep.end(), neighbors.begin(), neighbors.begin()+split_count);
-            }
+            if (neighbors.size() > 0) {
+                /* Now we randomly take 'split_count' neighbors. */
+                // TODO: Actual randomness.
+                if (to_keep.size() < split_count) {
+                    split_count = std::min(split_count, (int)neighbors.size());
 
-            const bool split_occured = (to_keep.size() > 1);
-            /* Now that the neighbors are filtered we can process recursively. */
-            for (Mesh::Vertex n : to_keep) {
-                Mesh::Edge e = mesh_.find_edge(current_vertex, n);
-                const float edge_len = mesh_.edge_length(e);
-                v_abs_length_[n] = v_abs_length_[current_vertex] + edge_len;
-                if (split_occured) {
-                    split_count ++;
-                    v_rel_length_[n] = edge_len;
+                    /* We try to follow the direction of the current branch as
+                     * much as possible, thus we would like to take the next
+                     * neighbor that minimizes the change of direction. */
+                    std::sort(neighbors.begin(), neighbors.end(), 
+                        [this, &current_vertex_pos, &last_vertex_pos](Mesh::Vertex &a, Mesh::Vertex &b) {
+                            Point a_pos = this->mesh_.position(a);
+                            Point b_pos = this->mesh_.position(b);
+                            float a_dot = dot(a_pos - current_vertex_pos, current_vertex_pos - last_vertex_pos);
+                            float b_dot = dot(b_pos - current_vertex_pos, current_vertex_pos - last_vertex_pos);
+                            return a_dot > b_dot;
+                        }
+                    );
+                    Mesh::Vertex next = neighbors[0];
+                    to_keep.push_back(next);
+                    to_keep.insert(to_keep.end(), neighbors.end()-(split_count-1), neighbors.end());
                 }
-                else {
-                    v_rel_length_[n] = v_rel_length_[current_vertex] + edge_len;
-                }
-                e_inwireframe_[e] = true;
-                e_scale_[e] = length_scale_factor * cylinder_base_diameter_; // TODO
-                v_inwireframe_[n] = true;
 
-                to_process.push({n, current_vertex});
+                const bool split_occured = (to_keep.size() > 1);
+                /* Now that the neighbors are filtered we can process recursively. */
+                for (Mesh::Vertex n : to_keep) {
+                    Mesh::Edge e = mesh_.find_edge(current_vertex, n);
+                    const float edge_len = mesh_.edge_length(e);
+                    v_abs_length_[n] = v_abs_length_[current_vertex] + edge_len;
+                    if (split_occured) {
+                        total_splits_performed ++;
+                        v_rel_length_[n] = edge_len;
+                    }
+                    else {
+                        v_rel_length_[n] = v_rel_length_[current_vertex] + edge_len;
+                    }
+                    e_inwireframe_[e] = true;
+                    e_scale_[e] = length_scale_factor * cylinder_base_diameter_;
+                    v_inwireframe_[n] = true;
+
+                    to_process.push({n, current_vertex});
+                }
             }
         }
-        DEBUG(split_count << " splits performed.");
+        DEBUG(total_splits_performed << " splits performed.");
     }
 }
