@@ -152,8 +152,6 @@ namespace mesh_processing {
             int split_count = 1; /* Number of neigbors to take when splitting. 1 means no split. */
             if (split_condition) {
                 split_count ++;
-                /* We 'reset' the relative length of the current vertex. */
-                v_rel_length_[current_vertex] = 0.0f;
             }
 
             /* The second condition to keep a neighbor is that the angle 
