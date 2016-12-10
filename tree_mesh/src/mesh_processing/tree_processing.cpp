@@ -102,7 +102,7 @@ namespace mesh_processing {
                 Point pos_2 = normalize(this->mesh_.position(v2));
                 float d = dot(pos_1, pos_2);
                 DEBUG("d = " << d);
-                float angle = d;
+                float angle = std::acos(d);
                 DEBUG("angle = " << angle);
                 if (angle >= curr_angle) {
                     curr_angle = angle;
@@ -196,19 +196,47 @@ namespace mesh_processing {
                     split_count = std::min(split_count, (int)neighbors.size());
 
                     if (split_count == 1) {
-                        /* We try to follow the direction of the current branch as
-                         * much as possible, thus we would like to take the next
-                         * neighbor that minimizes the change of direction. */
-                        std::sort(neighbors.begin(), neighbors.end(), 
-                            [this, &current_vertex_pos, &last_vertex_pos](Mesh::Vertex &a, Mesh::Vertex &b) {
-                                Point a_pos = this->mesh_.position(a);
-                                Point b_pos = this->mesh_.position(b);
-                                float a_dot = dot(normalize(a_pos - current_vertex_pos), normalize(current_vertex_pos - last_vertex_pos));
-                                float b_dot = dot(normalize(b_pos - current_vertex_pos), normalize(current_vertex_pos - last_vertex_pos));
-                                return a_dot > b_dot;
+                        Mesh::Vertex next;
+                        if (to_keep.size() == 0) {
+                            /* If we are not following a root, we try to follow 
+                             * the direction of the current branch as much as 
+                             * possible, thus we would like to take the next 
+                             * neighbor that minimizes the change of direction.
+                             */
+                            std::sort(neighbors.begin(), neighbors.end(), 
+                                [this, &current_vertex_pos, &last_vertex_pos](Mesh::Vertex &a, Mesh::Vertex &b) {
+                                // TODO : REVIEW ALL COMPUTATION OF MAX/MIN ANGLES.
+                                    Point a_pos = this->mesh_.position(a);
+                                    Point b_pos = this->mesh_.position(b);
+                                    float a_dot = dot(normalize(a_pos - current_vertex_pos), normalize(current_vertex_pos - last_vertex_pos));
+                                    float b_dot = dot(normalize(b_pos - current_vertex_pos), normalize(current_vertex_pos - last_vertex_pos));
+                                    return a_dot > b_dot;
+                                }
+                            );
+                            next = neighbors[0];
+                        }
+                        else {
+                            /* Here, we are in the situation where :
+                             * 1) We were forced to follow a root
+                             * 2) The root does no split (otherwise to_keep
+                             *      would be of size 2.
+                             * 3) We want to split 'naturally'
+                             * The idea of to go as far as possible from the
+                             * root. */
+                            Mesh::Vertex winner;
+                            float best_angle = FLT_MIN;
+                            for (Mesh::Vertex v : neighbors) {
+                                Point pos_v = normalize(mesh_.position(v)-current_vertex_pos);
+                                Point pos_root = normalize(mesh_.position(to_keep[0])-current_vertex_pos);
+                                float d = dot(pos_v, pos_root);
+                                float angle = std::acos(d);
+                                if (angle > best_angle) {
+                                    winner = v;
+                                    best_angle = angle;
+                                }
                             }
-                        );
-                        Mesh::Vertex next = neighbors[0];
+                            next = winner;
+                        }
                         to_keep.push_back(next);
                     }
                     else {
