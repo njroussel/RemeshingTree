@@ -91,6 +91,11 @@ namespace mesh_processing {
     neighbors.erase(std::remove(neighbors.begin(), neighbors.end(), v), neighbors.end()); \
     } while(0);
 
+#define ignore(v) \
+    do { \
+    neighbors.erase(std::remove(neighbors.begin(), neighbors.end(), v), neighbors.end()); \
+    } while(0);
+
     void TreeProcessing::inner_fill(std::queue<branch_t> to_process) {
         const float max_length = 12.0f;
 	    while (!to_process.empty()) {
@@ -107,18 +112,26 @@ namespace mesh_processing {
             if (current_length >= max_length) {
                 continue;
             }
-            const float length_scale_factor = 1.0f - (current_length / max_length);
+            const float length_scale_factor = (1.0f - (current_length / max_length)) * (v_root_[current_vertex] ? 1.2f : 1.0f);
             v_scale_[current_vertex] = length_scale_factor * sphere_base_diameter_; // TODO
 
             std::vector<Mesh::Vertex> neighbors = get_neighbors(current_vertex, true);
             /* To keep will be the result of filtering the set of neighbors. */
             std::vector<Mesh::Vertex> to_keep;
 
-            /* If one of the neighbors is from the root, we keep it no matter
-             * what. */
+            /* Deal with neighbors belonging to the root. */
             for (Mesh::Vertex n : neighbors) {
                 if (v_root_[n]) {
-                    keep(n);
+                    if (v_root_[current_vertex]) {
+                        /* We are allowed to continue our path on the root,
+                         * iff we are on the root from the start. */
+                        keep(n);
+                    }
+                    else {
+                        /* Otherwise we are not allowed to process this
+                         * neighbor, thus we need to ignore it.*/
+                        ignore(n);
+                    }
                 }
             }
 
