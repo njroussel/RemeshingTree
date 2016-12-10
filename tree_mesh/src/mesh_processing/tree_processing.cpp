@@ -118,6 +118,9 @@ namespace mesh_processing {
             v_scale_[current_vertex] = length_scale_factor * sphere_base_diameter_; // TODO
 
             std::vector<Mesh::Vertex> neighbors = get_neighbors(current_vertex, true);
+            std::vector<Mesh::Vertex> all_neighbors = get_neighbors(current_vertex, false);
+            const bool close_to_branch = all_neighbors.size() - neighbors.size() >= 3;
+
             std::vector<Mesh::Vertex> neighbors_cpy = neighbors;
             /* To keep will be the result of filtering the set of neighbors. */
             std::vector<Mesh::Vertex> to_keep;
@@ -141,10 +144,9 @@ namespace mesh_processing {
 
 
             /* Now we decide weather we split or not. */
-            const bool split_condition = (v_rel_length_[current_vertex] >= 2.0f);
+            const bool split_condition = (v_rel_length_[current_vertex] >= 1.0f);
             int split_count = 1; /* Number of neigbors to take when splitting. 1 means no split. */
             if (split_condition) {
-                DEBUG("rel_length = " << v_rel_length_[current_vertex]);
                 split_count ++;
                 /* We 'reset' the relative length of the current vertex. */
                 v_rel_length_[current_vertex] = 0.0f;
@@ -164,7 +166,7 @@ namespace mesh_processing {
             if (neighbors.size() > 0) {
                 /* Now we randomly take 'split_count' neighbors. */
                 // TODO: Actual randomness.
-                if (to_keep.size() < split_count) {
+                if (to_keep.size() < split_count && !close_to_branch) {
                     split_count = std::min(split_count, (int)neighbors.size());
 
                     /* We try to follow the direction of the current branch as
