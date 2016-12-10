@@ -96,10 +96,11 @@ namespace mesh_processing {
         float curr_angle = FLT_MIN;
         Mesh::Vertex curr_1;
         Mesh::Vertex curr_2;
+        Point pos_v = mesh_.position(v);
         for (Mesh::Vertex v1 : neighbors) {
             for (Mesh::Vertex v2 : neighbors) {
-                Point pos_1 = normalize(this->mesh_.position(v1));
-                Point pos_2 = normalize(this->mesh_.position(v2));
+                Point pos_1 = normalize(mesh_.position(v1)-pos_v);
+                Point pos_2 = normalize(mesh_.position(v2)-pos_v);
                 float d = dot(pos_1, pos_2);
                 float angle = std::acos(d);
                 if (angle >= curr_angle) {
@@ -203,7 +204,6 @@ namespace mesh_processing {
                              */
                             std::sort(neighbors.begin(), neighbors.end(), 
                                 [this, &current_vertex_pos, &last_vertex_pos](Mesh::Vertex &a, Mesh::Vertex &b) {
-                                // TODO : REVIEW ALL COMPUTATION OF MAX/MIN ANGLES.
                                     Point a_pos = this->mesh_.position(a);
                                     Point b_pos = this->mesh_.position(b);
                                     float a_dot = dot(normalize(a_pos - current_vertex_pos), normalize(current_vertex_pos - last_vertex_pos));
