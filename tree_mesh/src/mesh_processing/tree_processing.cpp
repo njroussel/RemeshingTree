@@ -98,9 +98,12 @@ namespace mesh_processing {
         Mesh::Vertex curr_2;
         for (Mesh::Vertex v1 : neighbors) {
             for (Mesh::Vertex v2 : neighbors) {
-                Point pos_1 = this->mesh_.position(v1);
-                Point pos_2 = this->mesh_.position(v2);
-                float angle = dot(pos_1, pos_2);
+                Point pos_1 = normalize(this->mesh_.position(v1));
+                Point pos_2 = normalize(this->mesh_.position(v2));
+                float d = dot(pos_1, pos_2);
+                DEBUG("d = " << d);
+                float angle = d;
+                DEBUG("angle = " << angle);
                 if (angle >= curr_angle) {
                     curr_angle = angle;
                     curr_1 = v1;
@@ -168,8 +171,8 @@ namespace mesh_processing {
             /* The second condition to keep a neighbor is that the angle 
              * between the two branches 'looks' realistic. */
             for (Mesh::Vertex n : neighbors_cpy) {
-                Point last_dir = current_vertex_pos - last_vertex_pos;
-                Point new_dir = mesh_.position(n) - current_vertex_pos;
+                Point last_dir = normalize(current_vertex_pos - last_vertex_pos);
+                Point new_dir = normalize(mesh_.position(n) - current_vertex_pos);
                 if (!(dot(last_dir, new_dir) >= 0.0f)) {
                     ignore(n);
                 }
@@ -200,8 +203,8 @@ namespace mesh_processing {
                             [this, &current_vertex_pos, &last_vertex_pos](Mesh::Vertex &a, Mesh::Vertex &b) {
                                 Point a_pos = this->mesh_.position(a);
                                 Point b_pos = this->mesh_.position(b);
-                                float a_dot = dot(a_pos - current_vertex_pos, current_vertex_pos - last_vertex_pos);
-                                float b_dot = dot(b_pos - current_vertex_pos, current_vertex_pos - last_vertex_pos);
+                                float a_dot = dot(normalize(a_pos - current_vertex_pos), normalize(current_vertex_pos - last_vertex_pos));
+                                float b_dot = dot(normalize(b_pos - current_vertex_pos), normalize(current_vertex_pos - last_vertex_pos));
                                 return a_dot > b_dot;
                             }
                         );
