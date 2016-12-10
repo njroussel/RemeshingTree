@@ -87,6 +87,11 @@ namespace mesh_processing {
         inner_fill(to_process);
     }
 
+    bool TreeProcessing::split(Mesh::Vertex v) {
+        const float p = (float)std::rand() / RAND_MAX;
+        return max_length_ * p < v_abs_length_[v];
+    }
+
 #define keep(v) \
     do { \
     to_keep.push_back(v); \
@@ -99,7 +104,6 @@ namespace mesh_processing {
     } while(0);
 
     void TreeProcessing::inner_fill(std::queue<branch_t> to_process) {
-        const float max_length = 13.0f;
         int total_splits_performed = 0;
         while (!to_process.empty()) {
             branch_t current_branch = to_process.front();
@@ -111,10 +115,10 @@ namespace mesh_processing {
             Point last_vertex_pos = mesh_.position(current_branch.last);
 
             const float current_length = v_abs_length_[current_vertex];
-            if (current_length >= max_length) {
+            if (current_length >= max_length_) {
                 continue;
             }
-            const float length_scale_factor = (1.0f - (current_length / max_length)) * (v_root_[current_vertex] ? 1.2f : 1.0f);
+            const float length_scale_factor = (1.0f - (current_length / max_length_)) * (v_root_[current_vertex] ? 1.2f : 1.0f);
             v_scale_[current_vertex] = length_scale_factor * sphere_base_diameter_; // TODO
 
             std::vector<Mesh::Vertex> neighbors = get_neighbors(current_vertex, true);
@@ -144,7 +148,7 @@ namespace mesh_processing {
 
 
             /* Now we decide weather we split or not. */
-            const bool split_condition = (v_rel_length_[current_vertex] >= 1.0f);
+            const bool split_condition = (v_rel_length_[current_vertex] >= 1.0f) && split(current_vertex);
             int split_count = 1; /* Number of neigbors to take when splitting. 1 means no split. */
             if (split_condition) {
                 split_count ++;

@@ -37,9 +37,11 @@ namespace mesh_processing {
 
             bool is_root(Mesh::Vertex v);
             Mesh::Vertex get_lowest_root_vertex(void);
+            bool split(Mesh::Vertex v);
 
             float sphere_base_diameter_;
             float cylinder_base_diameter_;
+            float max_length_ = 15.0f;
             std::vector<Mesh::Vertex> roots_;
 
             /* All the properties, they will be the same as the ones given in
