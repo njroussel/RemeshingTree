@@ -15,7 +15,7 @@ namespace mesh_processing {
     typedef struct {
         Mesh::Vertex root;
         Mesh::Vertex last;
-    }recursion_data_t;
+    }branch_t;
 
     class TreeProcessing : public WireframeProcessing {
         public:
@@ -30,13 +30,26 @@ namespace mesh_processing {
 
         private:
             virtual void fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
-            void build_main_root(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length);
-            void build_main_root_inner(Mesh::Vertex root, Mesh::Vertex_property<bool> v_root, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length);
-            void inner_fill(std::queue<recursion_data_t> to_process, Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale, Mesh::Vertex_property<int> v_length);
+
+            void inner_fill(std::queue<branch_t> to_process);
+
+            std::vector<Mesh::Vertex> get_neighbors(Mesh::Vertex v, bool not_in_wireframe);
+
+            bool is_root(Mesh::Vertex v);
+            Mesh::Vertex get_lowest_root_vertex(void);
 
             float sphere_base_diameter_;
             float cylinder_base_diameter_;
-            float max_root_length;
             std::vector<Mesh::Vertex> roots_;
+
+            /* All the properties, they will be the same as the ones given in
+             * fill_wireframe_properties() above. This way we can use them in
+             * any helper functions without having to pass them as argument. */
+            Mesh::Vertex_property<bool> v_inwireframe_;
+            Mesh::Vertex_property<surface_mesh::Vec3> v_scale_;
+            Mesh::Edge_property<bool> e_inwireframe_;
+            Mesh::Edge_property<surface_mesh::Vec3> e_scale_;
+            Mesh::Vertex_property<float> v_length_;
+            Mesh::Vertex_property<bool> v_root_;
     };
 }
