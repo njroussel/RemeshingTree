@@ -184,7 +184,7 @@ namespace mesh_processing {
 
             if (to_keep.size() < 2) {
                 /* Now we decide weather we split or not. */
-                const bool split_condition = (v_rel_length_[current_vertex] >= 1.5f) && split(current_vertex);
+                const bool split_condition = (v_rel_length_[current_vertex] >= 1.0f) && split(current_vertex);
                 int split_count = 1 - to_keep.size(); /* Number of neigbors to take when splitting. 1 means no split. */
                 if (split_condition) {
                     split_count ++;
