@@ -9,6 +9,7 @@
 
 #define IDENTITY glm::mat4(1.0f)
 #define ZERO_VEC surface_mesh::Vec3(0.0f, 0.0f, 0.0f)
+#define ZERO_PAIR std::pair<float, float>(0.0f, 0.0f)
 #define DUMMY 1.0f
 
 #define USE_PROPERTY true
@@ -41,7 +42,7 @@ namespace mesh_processing {
         Mesh::Vertex_property<bool> v_inwireframe = mesh_.vertex_property<bool>("v:in_wireframe", false); 
         Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
         Mesh::Edge_property<bool> e_inwireframe = mesh_.edge_property<bool>("e:in_wireframe", false); 
-        Mesh::Edge_property<surface_mesh::Vec3> e_scale = mesh_.edge_property<surface_mesh::Vec3>("e:wireframe_cylinder_scale", ZERO_VEC); 
+        Mesh::Edge_property<std::pair<float, float>> e_scale = mesh_.edge_property<std::pair<float, float>>("e:wireframe_cylinder_scale", ZERO_PAIR); 
         fill_wireframe_properties(v_inwireframe, v_scale, e_inwireframe, e_scale);
 
         replace_vertices();
@@ -73,7 +74,7 @@ namespace mesh_processing {
 
     void WireframeProcessing::replace_edges() {
         Mesh::Edge_property<bool> e_wireframe = mesh_.get_edge_property<bool>("e:in_wireframe"); 
-        Mesh::Edge_property<surface_mesh::Vec3> e_scale = mesh_.get_edge_property<surface_mesh::Vec3>("e:wireframe_cylinder_scale"); 
+        Mesh::Edge_property<std::pair<float, float>> e_scale = mesh_.get_edge_property<std::pair<float, float>>("e:wireframe_cylinder_scale"); 
         Mesh::Edge_iterator ec, ec_end;
         ec = mesh_.edges_begin();
         ec_end = mesh_.edges_end();
@@ -84,7 +85,7 @@ namespace mesh_processing {
                 Mesh::Vertex v1 = mesh_.vertex(e, 1);
                 Point p0 = mesh_.position(v0);
                 Point p1 = mesh_.position(v1);
-                surface_mesh::Vec3 scale = surface_mesh::Vec3(e_scale[e][0], mesh_.edge_length(e), e_scale[e][2]);
+                surface_mesh::Vec3 scale = surface_mesh::Vec3(std::get<0>(e_scale[e]), mesh_.edge_length(e), std::get<1>(e_scale[e]));
                 Point pos = (p0 + p1) / 2.0f;
 
                 glm::vec3 edge_dir = Vec3_to_glm((p0 - p1).normalize());
@@ -149,14 +150,14 @@ namespace mesh_processing {
         } while (++fc != fc_end);
     }
 
-    void WireframeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale) {
+    void WireframeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<std::pair<float, float>> e_scale) {
         for (Mesh::Vertex v : mesh_.vertices()) {
             v_inwireframe[v] = true;
             v_scale[v] = surface_mesh::Vec3(DEFAULT_SPHERE_DIAMETER, DEFAULT_SPHERE_DIAMETER, DEFAULT_SPHERE_DIAMETER);
         }
         for (Mesh::Edge e : mesh_.edges()) {
             e_inwireframe[e] = true;
-            e_scale[e] = surface_mesh::Vec3(DEFAULT_CYLINDER_DIAMETER, DUMMY, DEFAULT_CYLINDER_DIAMETER);
+            e_scale[e] = std::make_pair(DEFAULT_CYLINDER_DIAMETER, DEFAULT_CYLINDER_DIAMETER);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace mesh_processing {
 	    void export_mesh(const std::string& filename);
 
         private:
-            virtual void fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<surface_mesh::Vec3> e_scale);
+            virtual void fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<std::pair<float, float>> e_scale);
 
             void inner_fill(std::queue<branch_t> to_process);
 
@@ -51,7 +51,7 @@ namespace mesh_processing {
             Mesh::Vertex_property<bool> v_inwireframe_;
             Mesh::Vertex_property<surface_mesh::Vec3> v_scale_;
             Mesh::Edge_property<bool> e_inwireframe_;
-            Mesh::Edge_property<surface_mesh::Vec3> e_scale_;
+            Mesh::Edge_property<std::pair<float, float>> e_scale_;
             Mesh::Vertex_property<float> v_abs_length_;
             Mesh::Vertex_property<float> v_rel_length_;
             Mesh::Vertex_property<bool> v_root_;
