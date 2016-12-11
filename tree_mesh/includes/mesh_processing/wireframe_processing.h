@@ -18,7 +18,7 @@ namespace mesh_processing {
         protected:
             void replace_vertices();
             void replace_edges();
-            void insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot_axis, const float rot_angle, const surface_mesh::Vec3 scale);
+            void insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot_axis, float rot_angle, surface_mesh::Vec3 scale, bool edge);
             virtual void fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<std::pair<float, float>> e_scale);
 
             Mesh sphere_;

@@ -113,6 +113,10 @@ namespace mesh_processing {
         return std::pair<Mesh::Vertex, Mesh::Vertex>(curr_1, curr_2);
     }
 
+    float TreeProcessing::get_scale_factor(Mesh::Vertex v) {
+        return (1.0f - (v_abs_length_[v] / max_length_)) * (v_root_[v] ? 1.2f : 1.0f);
+    }
+
 #define keep(v) \
     do { \
     to_keep.push_back(v); \
@@ -136,15 +140,10 @@ namespace mesh_processing {
             Point last_vertex_pos = mesh_.position(current_branch.last);
 
             const float current_length = v_abs_length_[current_vertex];
-            const float length_scale_factor = (1.0f - (current_length / max_length_)) * (v_root_[current_vertex] ? 1.2f : 1.0f);
+            const float length_scale_factor = get_scale_factor(current_vertex);
 
             /* We set the scales for the sphere and the second part of the edge. */
             v_scale_[current_vertex] = length_scale_factor * sphere_base_diameter_;
-            if (current_vertex != last_vertex) {
-                /* This is the case for non-starting vertices. */
-                Mesh::Edge e = mesh_.find_edge(last_vertex, current_vertex);
-                e_scale_[e] = std::make_pair(std::get<0>(e_scale_[e]), length_scale_factor * sphere_base_diameter_);
-            }
 
             if (current_length >= max_length_) {
                 continue;
@@ -268,9 +267,16 @@ namespace mesh_processing {
                     v_rel_length_[n] = v_rel_length_[current_vertex] + edge_len;
                 }
                 e_inwireframe_[e] = true;
-                /* Note : The second part of the e_scale will be set by the neighbor
-                 * during the recursion. */
-                e_scale_[e] = std::make_pair(length_scale_factor * cylinder_base_diameter_, 1.0f);
+                if (mesh_.vertex(e, 0) != current_vertex) {
+                    /* It may happen that the edge is stored in the opposite
+                     * direction, in this case we need to invert the e_scale
+                     * pair.
+                     */
+                    e_scale_[e] = std::make_pair(length_scale_factor * cylinder_base_diameter_, get_scale_factor(n) * cylinder_base_diameter_);
+                }
+                else {
+                    e_scale_[e] = std::make_pair(get_scale_factor(n) * cylinder_base_diameter_, length_scale_factor * cylinder_base_diameter_);
+                }
                 v_inwireframe_[n] = true;
 
                 to_process.push({n, current_vertex});

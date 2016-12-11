@@ -67,7 +67,7 @@ namespace mesh_processing {
             if (!USE_PROPERTY || v_wireframe[v]) {
                 Point p = mesh_.position(v);
                 //std::cout << "Add vertex. Scale = " << v_scale[v] << std::endl;
-                insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, v_scale[v]);
+                insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, v_scale[v], false);
             }
         } while (++vc != vc_end);
     }
@@ -94,12 +94,14 @@ namespace mesh_processing {
 
                 float rot_angle = glm::acos(glm::dot(edge_dir, cylinder_axis));
 
-                insert_mesh(cylinder_, pos, rot_axis, rot_angle, scale);
+                insert_mesh(cylinder_, pos, rot_axis, rot_angle, scale, true);
             }
         }while (++ec != ec_end);
     }
 
-    void WireframeProcessing::insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot_axis, const float rot_angle, const surface_mesh::Vec3 scale) {
+    void WireframeProcessing::insert_mesh(Mesh& to_insert, const surface_mesh::Point pos, const surface_mesh::Vec3 rot_axis, float rot_angle, surface_mesh::Vec3 scale, bool edge) {
+        float low = to_insert.position(get_lowest_point(to_insert))[1];
+        float high = to_insert.position(get_highest_point(to_insert))[1];
         glm::vec3 axis = Vec3_to_glm(rot_axis);
         glm::mat4 rot_matrix = glm::rotate(IDENTITY, rot_angle, axis);
         Mesh::Face_iterator fc, fc_end;
@@ -118,7 +120,19 @@ namespace mesh_processing {
             do {
                 Mesh::Vertex v = *vc;
                 if (vertex_mapping.find(v) == vertex_mapping.end()) {
-                    Point p = to_insert.position(v) * scale;
+                    surface_mesh::Vec3 tmp_scale;
+                    if (edge) {
+                        float height = to_insert.position(v)[1];
+                        float relative_height = (height - low) / (high - low);
+                        float scale_along_axis = scale[0] + relative_height * (scale[2] - scale[0]);
+                        tmp_scale[0] = scale_along_axis;
+                        tmp_scale[1] = scale[1];
+                        tmp_scale[2] = scale_along_axis;
+                    }
+                    else {
+                        tmp_scale = scale;
+                    }
+                    Point p = to_insert.position(v) * tmp_scale;
 
                     /* Rotations */
                     glm::vec3 pos_glm = Vec3_to_glm(p);
