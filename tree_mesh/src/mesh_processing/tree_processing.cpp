@@ -11,8 +11,7 @@ namespace mesh_processing {
             const float cylinder_base_diameter) : WireframeProcessing(filename, sphere_filename, cylinder_filename) {
         sphere_base_diameter_ = sphere_base_diameter;
         cylinder_base_diameter_ = cylinder_base_diameter;
-        //std::srand(std::time(0)); // use current time as seed for random generator
-        std::srand(14567); // use current time as seed for random generator
+        std::srand(14567);
     }
 
     TreeProcessing::~TreeProcessing() {}
@@ -38,9 +37,11 @@ namespace mesh_processing {
     }
 
     bool TreeProcessing::is_root(Mesh::Vertex v) {
+        /* A vertex belong to the root if its color is red. */
         Mesh::Vertex_property<surface_mesh::Color> v_color = mesh_.get_vertex_property<surface_mesh::Color>("v:color");
         surface_mesh::Color c = v_color[v];
         const float th = 0.2f;
+        /* Small threshold, in case colors blend. */
         return c[1] <= th && c[2] <= th;
     }
 
@@ -60,6 +61,8 @@ namespace mesh_processing {
     }
 
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<std::pair<float, float>> e_scale) {
+        /* THIS IS WHERE THE MAGIC HAPPENS ! */
+
         /* Set the private properties to avoid clutter. */
         v_inwireframe_ = v_inwireframe;
         v_scale_ = v_scale;
@@ -78,9 +81,10 @@ namespace mesh_processing {
 
         std::queue<branch_t> to_process;
         /* Initially the queue will contain only the lowest vertex of the
-         * root. */
+         * root from there the inner method does all the work. */
         Mesh::Vertex start = get_lowest_root_vertex();
         v_inwireframe_[start] = true;
+
         to_process.push({start, start});
 
         /* Start the algo. */
@@ -88,11 +92,14 @@ namespace mesh_processing {
     }
 
     bool TreeProcessing::split(Mesh::Vertex v) {
+        /* The idea is to have a lot of splits on top and none at the bottom. */
         const float p = (float)std::rand() / RAND_MAX;
         return max_length_ * p < v_abs_length_[v];
     }
 
     std::pair<Mesh::Vertex, Mesh::Vertex> TreeProcessing::get_best_split_pair(Mesh::Vertex v, std::vector<Mesh::Vertex> neighbors) {
+        /* As explain in the report, we aim to find the 2 neighbors that split
+         * the most, ie the angle between the 2 is maximized. */
         float curr_angle = FLT_MIN;
         Mesh::Vertex curr_1;
         Mesh::Vertex curr_2;
@@ -114,6 +121,8 @@ namespace mesh_processing {
     }
 
     float TreeProcessing::get_scale_factor(Mesh::Vertex v) {
+        /* Note that the root is a little bit bigger so that we easily
+         * see the important features of the face. */
         return (1.0f - (v_abs_length_[v] / max_length_)) * (v_root_[v] ? 1.2f : 1.0f);
     }
 
@@ -129,6 +138,7 @@ namespace mesh_processing {
     } while(0);
 
     void TreeProcessing::inner_fill(std::queue<branch_t> to_process) {
+        /* I lied above, the real magic happens here ;) */
         int total_splits_performed = 0;
         while (!to_process.empty()) {
             branch_t current_branch = to_process.front();
@@ -142,22 +152,34 @@ namespace mesh_processing {
             const float current_length = v_abs_length_[current_vertex];
             const float length_scale_factor = get_scale_factor(current_vertex);
 
-            /* We set the scales for the sphere and the second part of the edge. */
+            /* We set the scales for the sphere. The edges come after. */
             v_scale_[current_vertex] = length_scale_factor * sphere_base_diameter_;
 
             if (current_length >= max_length_) {
+                /* Termination of the branch. */
                 continue;
             }
 
+            /* We retrieve the neighbors. */
             std::vector<Mesh::Vertex> neighbors = get_neighbors(current_vertex, true);
             std::vector<Mesh::Vertex> all_neighbors = get_neighbors(current_vertex, false);
+
+            /* The current vertex is considered close to a branch is more than
+             * 2 of its neighors are already in the tree wireframe. This boolean
+             * avoid having branches that follows along others, giving questionabl
+             * results. */
             const bool close_to_branch = all_neighbors.size() - neighbors.size() >= 3;
 
+            /* We copy the vector so that we can perform deletion while iterating
+             * over the copy. */
             std::vector<Mesh::Vertex> neighbors_cpy = neighbors;
+
             /* To keep will be the result of filtering the set of neighbors. */
             std::vector<Mesh::Vertex> to_keep;
 
-            /* Deal with neighbors belonging to the root. */
+            /* Deal with neighbors belonging to the root. Those ones are
+             * always kept but only if the current vertex is also in the 
+             * root. */
             for (Mesh::Vertex n : neighbors_cpy) {
                 if (v_root_[n]) {
                     if (v_root_[current_vertex]) {
@@ -174,8 +196,8 @@ namespace mesh_processing {
             }
             neighbors_cpy = neighbors;
 
-            /* The second condition to keep a neighbor is that the angle 
-             * between the two branches 'looks' realistic. */
+            /* We now renove all neighbors that would yield to non realistic 
+             * splits ie. with absolute value angle > PI/2 or dot product < 0. */
             for (Mesh::Vertex n : neighbors_cpy) {
                 Point last_dir = normalize(current_vertex_pos - last_vertex_pos);
                 Point new_dir = normalize(mesh_.position(n) - current_vertex_pos);
@@ -186,22 +208,31 @@ namespace mesh_processing {
             neighbors_cpy = neighbors; /* Not necessary, but here to avoid forgetting it. */
 
             if (neighbors.size() == 0) {
+                /* If no neighbor is kept, then we stop, and goes with the next
+                 * entry in the queue. */
                 continue;
             }
 
+            /* We don't allow split with more than 2 branches. */ 
             if (to_keep.size() < 2) {
-                /* Now we decide weather we split or not. */
+                /* If we kept less than 2 neighbors (root in this case) we
+                 * consider splitting. */
+
+                /* We impse a condition on splitting, the last split must have
+                 * occured at a distance of at least a certain threshold. */
                 const bool split_condition = (v_rel_length_[current_vertex] >= 1.0f) && split(current_vertex);
                 int split_count = 1 - to_keep.size(); /* Number of neigbors to take when splitting. 1 means no split. */
                 if (split_condition) {
+                    /* A split occurs at the current vertex. */
                     split_count ++;
                 }
 
-                /* Now we randomly take 'split_count' neighbors. */
+                // TODO remove first cond
                 if (to_keep.size() <= split_count && !close_to_branch) {
                     split_count = std::min(split_count, (int)neighbors.size());
 
                     if (split_count == 1) {
+                        /* Case 1 : No split occurs. */
                         Mesh::Vertex next;
                         if (to_keep.size() == 0) {
                             /* If we are not following a root, we try to follow 
@@ -226,8 +257,9 @@ namespace mesh_processing {
                              * 2) The root does no split (otherwise to_keep
                              *      would be of size 2.
                              * 3) We want to split 'naturally'
-                             * The idea of to go as far as possible from the
-                             * root. */
+                             * The idea is to take the neighbor that goes as far
+                             * as possible from the root. ie the angle between the
+                             * neighbor and the root is maximized. */
                             Mesh::Vertex winner;
                             float best_angle = FLT_MIN;
                             for (Mesh::Vertex v : neighbors) {
@@ -245,7 +277,11 @@ namespace mesh_processing {
                         to_keep.push_back(next);
                     }
                     else {
-                        /* Split == 2. */
+                        /* Case 2 : A split occurs. In this case we take the
+                         * 2 neighbors that 'split the most' ie that make 
+                         * branches that have teh maximum angle possible
+                         * between them.
+                         */
                         auto best_pair = get_best_split_pair(current_vertex, neighbors);
                         to_keep.push_back(std::get<0>(best_pair));
                         to_keep.push_back(std::get<1>(best_pair));
@@ -254,24 +290,35 @@ namespace mesh_processing {
             }
 
             const bool split_occured = (to_keep.size() > 1);
-            /* Now that the neighbors are filtered we can process recursively. */
+
+            /* Now that the neighbors are filtered and splits performed, we
+             * can 'recurse'. */
             for (Mesh::Vertex n : to_keep) {
                 Mesh::Edge e = mesh_.find_edge(current_vertex, n);
                 const float edge_len = mesh_.edge_length(e);
+
+                /* We update the length of the neighbor. */
                 v_abs_length_[n] = v_abs_length_[current_vertex] + edge_len;
+                
                 if (split_occured) {
+                    /* In case of split the relative length of the neighbor
+                     * is reseted. */
                     total_splits_performed ++;
                     v_rel_length_[n] = edge_len;
                 }
                 else {
+                    /* Otherwise it is just updated with the edge length. */
                     v_rel_length_[n] = v_rel_length_[current_vertex] + edge_len;
                 }
+
+                /* Finally we set the edge's properties. */
                 e_inwireframe_[e] = true;
+
+                /* It may happen that the edge is stored in the opposite
+                 * direction, in this case we need to invert the e_scale
+                 * pair.
+                 */
                 if (mesh_.vertex(e, 0) != current_vertex) {
-                    /* It may happen that the edge is stored in the opposite
-                     * direction, in this case we need to invert the e_scale
-                     * pair.
-                     */
                     e_scale_[e] = std::make_pair(length_scale_factor * cylinder_base_diameter_, get_scale_factor(n) * cylinder_base_diameter_);
                 }
                 else {
@@ -279,6 +326,7 @@ namespace mesh_processing {
                 }
                 v_inwireframe_[n] = true;
 
+                /* We push the neighbor into the queue. */
                 to_process.push({n, current_vertex});
             }
         }

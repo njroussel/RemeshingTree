@@ -6,5 +6,8 @@
 
 typedef surface_mesh::Surface_mesh Mesh;
 
+/* Returns the highest vertex of a given mesh. */ 
 Mesh::Vertex get_highest_point(const Mesh &mesh);
+
+/* Returns the lowest vertex of a given mesh. */ 
 Mesh::Vertex get_lowest_point(const Mesh &mesh);
