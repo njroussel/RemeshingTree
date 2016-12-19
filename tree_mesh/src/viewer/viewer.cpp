@@ -383,22 +383,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     b->setCallback([this]() {
     });
 
-    b = new Button(window_, "Reset");
-    b->setCallback([this]() {
-        this->reset_mesh();
-        reset_performed_ = true;
-    });
-
-    /* ###### layout for tree  parameters. */
-    popupBtn = new PopupButton(window_, "Tree");
-    popup = popupBtn->popup();
-    popup->setLayout(new GroupLayout());
-
-    Widget* panel = new Widget(popup);
-    panel->setLayout(new GroupLayout());
-
-
-    b = new Button(panel, "Transform");
+    b = new Button(window_, "Tree");
     b->setCallback([this]() {
         if (!reset_performed_){
             this->reset_mesh();
@@ -413,6 +398,20 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
         this->mesh_->compute_mesh_properties();
         this->refresh_mesh();
     });
+
+    b = new Button(window_, "Reset");
+    b->setCallback([this]() {
+        this->reset_mesh();
+        reset_performed_ = true;
+    });
+
+    /* ###### layout for tree  parameters. */
+    popupBtn = new PopupButton(window_, "Params.");
+    popup = popupBtn->popup();
+    popup->setLayout(new GroupLayout());
+
+    Widget* panel = new Widget(popup);
+    panel->setLayout(new GroupLayout());
 
     panel = new Widget(popup);
     GridLayout *layout = new GridLayout(Orientation::Horizontal, 2,
