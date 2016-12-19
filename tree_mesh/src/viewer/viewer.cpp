@@ -371,6 +371,9 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
 
     b = new Button(window_, "Remeshing");
     b->setCallback([this]() {
+            if (!reset_performed_){
+                this->reset_mesh();
+            }
             this->mesh_->remesh(this->remeshing_type, 5);
             this->mesh_->compute_mesh_properties();
             this->refresh_mesh();
@@ -406,6 +409,7 @@ void Viewer::reset_mesh(void) {
     this->mesh_->revert_changes();
     this->mesh_->compute_mesh_properties();
     this->refresh_mesh();
+    reset_performed_ = true;
 }
 
 void Viewer::refresh_trackball_center() {
