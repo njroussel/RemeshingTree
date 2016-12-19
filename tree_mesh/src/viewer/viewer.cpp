@@ -277,6 +277,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     window_->setPosition(Vector2i(15, 15));
     window_->setLayout(new GroupLayout());
 
+    new Label(window_, "Input/Output", "sans-bold");
     PopupButton *popupBtn = new PopupButton(window_, "Open a mesh", ENTYPO_ICON_EXPORT);
     Popup *popup = popupBtn->popup();
     popup->setLayout(new GroupLayout());
@@ -301,19 +302,34 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
             });
 
     new Label(window_, "Display Control", "sans-bold");
+
+    /* ## Display option bloat. */
+
+    popupBtn = new PopupButton(window_, "Infos Display");
+    popup = popupBtn->popup();
+    popup->setLayout(new GroupLayout());
+
+    Widget* panel = new Widget(popup);
+    //panel->setLayout(new GroupLayout());
+
+    GridLayout *layout = new GridLayout(Orientation::Vertical, 4,
+                                        Alignment::Middle, 15, 5);
+    layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
+    layout->setSpacing(0, 10);
+    panel->setLayout(new GridLayout());
    
-    b = new Button(window_, "Wireframe");
+    b = new Button(popup, "Wireframe");
     b->setFlags(Button::ToggleButton);
     b->setChangeCallback([this](bool wireframe) {
             this->wireframe_ =! this->wireframe_;
             });
-    b = new Button(window_, "Normals");
+    b = new Button(popup, "Normals");
     b->setFlags(Button::ToggleButton);
     b->setChangeCallback([this](bool normals) {
             this->normals_ =! this->normals_;
             });
 
-    b = new Button(window_, "Valence");
+    b = new Button(popup, "Valence");
     b->setFlags(Button::ToggleButton);
     b->setChangeCallback([this](bool valence) {
             if (valence) {
@@ -324,7 +340,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
             this->popupCurvature->setPushed(false);
             });
 
-    popupCurvature = new PopupButton(window_, "Curvature");
+    popupCurvature = new PopupButton(popup, "Curvature");
     popup = popupCurvature->popup();
     popupCurvature->setCallback([this] () {
             this->color_mode = CURVATURE;
@@ -364,11 +380,11 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     popup = popupBtn->popup();
     popup->setLayout(new GroupLayout());
 
-    Widget* panel = new Widget(popup);
+    panel = new Widget(popup);
     panel->setLayout(new GroupLayout());
 
     //panel = new Widget(popup);
-    GridLayout *layout = new GridLayout(Orientation::Horizontal, 2,
+    layout = new GridLayout(Orientation::Horizontal, 2,
                                         Alignment::Middle, 15, 5);
     layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
     layout->setSpacing(0, 10);
