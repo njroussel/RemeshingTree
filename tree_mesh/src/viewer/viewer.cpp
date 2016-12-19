@@ -281,20 +281,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     Popup *popup = popupBtn->popup();
     popup->setLayout(new GroupLayout());
 
-    Button* b = new Button(popup, "Bunny");
-    b->setCallback([this]() {
-            mesh_->load_mesh("../models/bunny.off");
-            this->refresh_mesh();
-            this->refresh_trackball_center();
-            });
-    b = new Button(popup, "Max-Planck");
-    b->setCallback([this]() {
-            mesh_->load_mesh("../models/max.off");
-            this->refresh_mesh();
-            this->refresh_trackball_center();
-            });
-
-    b = new Button(popup, "Open mesh ...");
+    Button *b = new Button(popup, "Open mesh ...");
     b->setCallback([this]() {
             string filename = nanogui::file_dialog({{"obj", "Wavefront OBJ"},
                     {"ply", "Stanford PLY"},
@@ -361,25 +348,8 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
             this->curvature_type = GAUSS;
             });
 
-    new Label(window_, "Remeshing Type", "sans-bold");
-    vector<string> remeshing_type = {"Average", "Curvature", "Height"};
-    ComboBox *c = new ComboBox(window_, remeshing_type);
-    c->setCallback([this](int remeshing_type) {
-            this->remeshing_type = static_cast<mesh_processing::REMESHING_TYPE>
-            (remeshing_type);
-            });
-
-    b = new Button(window_, "Remeshing");
-    b->setCallback([this]() {
-            if (!reset_performed_){
-                this->reset_mesh();
-            }
-            this->mesh_->remesh(this->remeshing_type, 5);
-            this->mesh_->compute_mesh_properties();
-            this->refresh_mesh();
-            });
-
-    b = new Button(window_, "Wireframe");
+    new Label(window_, "Transformations", "sans-bold");
+    b = new Button(window_, "3D Wireframe");
     b->setCallback([this]() {
             if (!reset_performed_){
                 this->reset_mesh();
@@ -435,12 +405,6 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
         this->refresh_mesh();
     });
 
-    b = new Button(window_, "Reset");
-    b->setCallback([this]() {
-        this->reset_mesh();
-        reset_performed_ = true;
-    });
-
     /* ###### layout for tree  parameters. */
     popupBtn = new PopupButton(window_, "Tree Params.");
     popup = popupBtn->popup();
@@ -449,7 +413,6 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     panel = new Widget(popup);
     panel->setLayout(new GroupLayout());
 
-    panel = new Widget(popup);
     layout = new GridLayout(Orientation::Horizontal, 2,
                                         Alignment::Middle, 15, 5);
     layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
@@ -502,6 +465,12 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     minRelLengthBeforeSplitTextBox->setDefaultValue("2.0");
     minRelLengthBeforeSplitTextBox->setFontSize(16);
     minRelLengthBeforeSplitTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    b = new Button(window_, "Reset");
+    b->setCallback([this]() {
+        this->reset_mesh();
+        reset_performed_ = true;
+    });
 
     performLayout();
 
