@@ -381,13 +381,6 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
 
     b = new Button(window_, "Wireframe");
     b->setCallback([this]() {
-        if (!reset_performed_){
-            this->reset_mesh();
-        }
-        reset_performed_ = false;
-        this->mesh_->create_wire_frame();
-        this->mesh_->compute_mesh_properties();
-        this->refresh_mesh();
     });
 
     b = new Button(window_, "Reset");
@@ -395,6 +388,85 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
         this->reset_mesh();
         reset_performed_ = true;
     });
+
+    /* ###### layout for tree  parameters. */
+    popupBtn = new PopupButton(window_, "Tree");
+    popup = popupBtn->popup();
+    popup->setLayout(new GroupLayout());
+
+    Widget* panel = new Widget(popup);
+    panel->setLayout(new GroupLayout());
+
+
+    b = new Button(panel, "Transform");
+    b->setCallback([this]() {
+        if (!reset_performed_){
+            this->reset_mesh();
+        }
+        reset_performed_ = false;
+        mesh_->create_tree_wireframe(sphereDiameterTextBox->value(),
+                                     cylinderDiameterTextBox->value(),
+                                     branchMaxLengthTextBox->value(),
+                                     rootScaleMultTextBox->value(),
+                                     minDotBetweenBranchesTextBox->value(),
+                                     minRelLengthBeforeSplitTextBox->value());
+        this->mesh_->compute_mesh_properties();
+        this->refresh_mesh();
+    });
+
+    panel = new Widget(popup);
+    GridLayout *layout = new GridLayout(Orientation::Horizontal, 2,
+                                        Alignment::Middle, 15, 5);
+    layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
+    layout->setSpacing(0, 10);
+    panel->setLayout(layout);
+    new Label(panel, "Sphere base diameter:", "sans-bold");
+    sphereDiameterTextBox = new FloatBox<float>(panel, 0.5f);
+    sphereDiameterTextBox->setEditable(true);
+    sphereDiameterTextBox->setFixedSize(Vector2i(50, 20));
+    sphereDiameterTextBox->setDefaultValue("10");
+    sphereDiameterTextBox->setFontSize(16);
+    sphereDiameterTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    new Label(panel, "Cylinder base diameter:", "sans-bold");
+    cylinderDiameterTextBox = new FloatBox<float>(panel, 0.5f);
+    cylinderDiameterTextBox->setEditable(true);
+    cylinderDiameterTextBox->setFixedSize(Vector2i(50, 20));
+    cylinderDiameterTextBox->setDefaultValue("2.0");
+    cylinderDiameterTextBox->setFontSize(16);
+    cylinderDiameterTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    new Label(panel, "Branch max. length:", "sans-bold");
+    branchMaxLengthTextBox = new FloatBox<float>(panel, 15.0);
+    branchMaxLengthTextBox->setEditable(true);
+    branchMaxLengthTextBox->setFixedSize(Vector2i(50, 20));
+    branchMaxLengthTextBox->setDefaultValue("2.0");
+    branchMaxLengthTextBox->setFontSize(16);
+    branchMaxLengthTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    new Label(panel, "Root scale multiplier:", "sans-bold");
+    rootScaleMultTextBox = new FloatBox<float>(panel, 1.2);
+    rootScaleMultTextBox->setEditable(true);
+    rootScaleMultTextBox->setFixedSize(Vector2i(50, 20));
+    rootScaleMultTextBox->setDefaultValue("2.0");
+    rootScaleMultTextBox->setFontSize(16);
+    rootScaleMultTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    new Label(panel, "Min. dot between branches:", "sans-bold");
+    minDotBetweenBranchesTextBox = new FloatBox<float>(panel, 0.0);
+    minDotBetweenBranchesTextBox->setEditable(true);
+    minDotBetweenBranchesTextBox->setFixedSize(Vector2i(50, 20));
+    minDotBetweenBranchesTextBox->setDefaultValue("2.0");
+    minDotBetweenBranchesTextBox->setFontSize(16);
+    minDotBetweenBranchesTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    new Label(panel, "Min. relative length before split:", "sans-bold");
+    minRelLengthBeforeSplitTextBox = new FloatBox<float>(panel, 1.0);
+    minRelLengthBeforeSplitTextBox->setEditable(true);
+    minRelLengthBeforeSplitTextBox->setFixedSize(Vector2i(50, 20));
+    minRelLengthBeforeSplitTextBox->setDefaultValue("2.0");
+    minRelLengthBeforeSplitTextBox->setFontSize(16);
+    minRelLengthBeforeSplitTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
 
     performLayout();
 

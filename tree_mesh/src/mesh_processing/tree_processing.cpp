@@ -60,6 +60,21 @@ namespace mesh_processing {
         return curr;
     }
 
+    void TreeProcessing::create_tree_wireframe(const float sphere_base_diameter,
+                                               const float cylinder_base_diameter,
+                                               const float max_length,
+                                               const float root_scale_multiplier,
+                                               const float min_dot_between_branches,
+                                               const float min_rel_len_before_split) {
+        sphere_base_diameter_     = sphere_base_diameter;
+        cylinder_base_diameter_   = cylinder_base_diameter;
+        max_length_               = max_length;
+        root_scale_multiplier_    = root_scale_multiplier;
+        min_dot_between_branches_ = min_dot_between_branches;
+        min_rel_len_before_split_ = min_rel_len_before_split;
+        create_wire_frame();
+    }
+
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<std::pair<float, float>> e_scale) {
         /* THIS IS WHERE THE MAGIC HAPPENS ! */
 

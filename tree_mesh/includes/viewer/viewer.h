@@ -99,7 +99,7 @@ class Viewer : public nanogui::Screen {
         nanogui::GLShader shaderNormals_;
         nanogui::Window *window_;
 
-        mesh_processing::WireframeProcessing* mesh_;
+        mesh_processing::TreeProcessing* mesh_;
         bool reset_performed_ = false;
 
         void reset_mesh(void);
@@ -116,7 +116,10 @@ class Viewer : public nanogui::Screen {
         mesh_processing::REMESHING_TYPE remeshing_type = mesh_processing::AVERAGE;
 
         PopupButton *popupCurvature;
-        FloatBox<float>* coefTextBox;
-        IntBox<int>* iterationTextBox;
-
+        FloatBox<float>* sphereDiameterTextBox;
+        FloatBox<float>* cylinderDiameterTextBox;
+        FloatBox<float>* branchMaxLengthTextBox;
+        FloatBox<float>* rootScaleMultTextBox;
+        FloatBox<float>* minDotBetweenBranchesTextBox;
+        FloatBox<float>* minRelLengthBeforeSplitTextBox;
 };

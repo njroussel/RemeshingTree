@@ -53,15 +53,12 @@ namespace mesh_processing {
              */
             void export_mesh(const std::string& filename);
 
-            void create_tree_wireframe() {
-                float sphere_base_diameter_;
-                float cylinder_base_diameter_;
-
-                /* Maximum lenth possible for a branch. */
-                const float max_length_ = 15.0f;
-                float root_scale_multiplier_ = 1.2f;
-
-            }
+            void create_tree_wireframe(const float sphere_base_diameter,
+                                       const float cylinder_base_diameter,
+                                       const float max_length,
+                                       const float root_scale_multiplier,
+                                       const float min_dot_between_branches,
+                                       const float min_rel_len_before_split);
 
         private:
             /* Main method of our project.
@@ -111,7 +108,7 @@ namespace mesh_processing {
             float sphere_base_diameter_;
             float cylinder_base_diameter_;
             /* Maximum lenth possible for a branch. */
-            const float max_length_ = 15.0f;
+            float max_length_ = 15.0f;
             /* Make the trunk a big bigger. */
             float root_scale_multiplier_ = 1.2f;
             /* Minimum dot between 2 branches. */
