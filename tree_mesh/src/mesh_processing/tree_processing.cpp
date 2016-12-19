@@ -128,7 +128,7 @@ namespace mesh_processing {
     float TreeProcessing::get_scale_factor(Mesh::Vertex v) {
         /* Note that the root is a little bit bigger so that we easily
          * see the important features of the face. */
-        return (1.0f - (v_abs_length_[v] / max_length_)) * (v_root_[v] ? 1.2f : 1.0f);
+        return (1.0f - (v_abs_length_[v] / max_length_)) * (v_root_[v] ? root_scale_multiplier_ : 1.0f);
     }
 
 #define keep(v) \
@@ -206,7 +206,7 @@ namespace mesh_processing {
             for (Mesh::Vertex n : neighbors_cpy) {
                 Point last_dir = normalize(current_vertex_pos - last_vertex_pos);
                 Point new_dir = normalize(mesh_.position(n) - current_vertex_pos);
-                if (!(dot(last_dir, new_dir) >= 0.0f)) {
+                if (!(dot(last_dir, new_dir) >= min_dot_between_branches_)) {
                     ignore(n);
                 }
             }
@@ -225,7 +225,7 @@ namespace mesh_processing {
 
                 /* We impse a condition on splitting, the last split must have
                  * occured at a distance of at least a certain threshold. */
-                const bool split_condition = (v_rel_length_[current_vertex] >= 1.0f) && split(current_vertex);
+                const bool split_condition = (v_rel_length_[current_vertex] >= min_rel_len_before_split_) && split(current_vertex);
                 int split_count = 1 - to_keep.size(); /* Number of neigbors to take when splitting. 1 means no split. */
                 if (split_condition) {
                     /* A split occurs at the current vertex. */

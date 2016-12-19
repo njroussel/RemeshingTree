@@ -53,6 +53,16 @@ namespace mesh_processing {
              */
             void export_mesh(const std::string& filename);
 
+            void create_tree_wireframe() {
+                float sphere_base_diameter_;
+                float cylinder_base_diameter_;
+
+                /* Maximum lenth possible for a branch. */
+                const float max_length_ = 15.0f;
+                float root_scale_multiplier_ = 1.2f;
+
+            }
+
         private:
             /* Main method of our project.
              * Virtual method that fills the wireframe properties of the
@@ -96,12 +106,18 @@ namespace mesh_processing {
             /* Get the scaling factor for a given vertex. */
             float get_scale_factor(Mesh::Vertex);
 
+            /* Some generation paramters. */
+            /* Sphere and cylinder width as see as the bottom of the trunk. */
             float sphere_base_diameter_;
             float cylinder_base_diameter_;
-
             /* Maximum lenth possible for a branch. */
             const float max_length_ = 15.0f;
-
+            /* Make the trunk a big bigger. */
+            float root_scale_multiplier_ = 1.2f;
+            /* Minimum dot between 2 branches. */
+            float min_dot_between_branches_ = 0.0f;
+            /* Min relative length before split. */
+            float min_rel_len_before_split_ = 1.0f;
             /* The roots of the tree. */
             std::vector<Mesh::Vertex> roots_;
 
