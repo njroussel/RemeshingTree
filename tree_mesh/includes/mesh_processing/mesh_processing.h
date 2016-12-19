@@ -15,6 +15,7 @@
 #include <surface_mesh/types.h>
 #include <Eigen/Sparse>
 
+// TODO Remove this shit
 //#define LOW_POLY_REMESHING
 #ifdef LOW_POLY_REMESHING
 #define gaussian(t) (exp(-std::pow((t) - 0.0f, 2.0f) / (2 * 0.5*0.5)))
@@ -75,6 +76,15 @@ namespace mesh_processing {
 
             const Mesh& mesh();
             void swap(Mesh& mesh);
+
+            /* Export the mesh to the current directory.
+             * @param filename : the name of the target file.
+             */
+            void export_mesh(const std::string& filename);
+
+            void revert_changes(void) {
+                mesh_ = mesh_init_;
+            }
 
         private:
             void calc_weights();

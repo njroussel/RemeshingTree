@@ -55,11 +55,6 @@ namespace mesh_processing {
             /* Create a wireframe version of the current mesh. */
             void create_wire_frame(void);
 
-            /* Export the mesh to the current directory.
-             * @param filename : the name of the target file.
-             */
-            void export_mesh(const std::string& filename);
-
         protected:
             /* Replace vertices with spheres. */
             void replace_vertices();
@@ -88,6 +83,8 @@ namespace mesh_processing {
 
             Mesh sphere_;
             Mesh cylinder_;
-            Mesh result_; /* Will contain the result until a swap. */
+            Mesh result_; /* Will store the result of the transformation and
+                             then returned to the callee. The original mesh_
+                             is *NOT* modified by this class. */
     };
 }

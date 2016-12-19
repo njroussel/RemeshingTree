@@ -26,6 +26,10 @@ namespace mesh_processing {
         // TODO
     }
 
+    void MeshProcessing::export_mesh(const std::string& filename){
+	    mesh_.write(filename);
+    }
+
     const surface_mesh::Point MeshProcessing::get_mesh_center() {
         return mesh_center_;
     }

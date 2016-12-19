@@ -32,13 +32,14 @@ namespace mesh_processing {
     WireframeProcessing::~WireframeProcessing(void) {
 
     }
-	
-    
-    void WireframeProcessing::export_mesh(const std::string& filename){
-	    mesh_.write(filename);
-    }
    
     void WireframeProcessing::create_wire_frame() {
+        result_ = Mesh();
+        remove_vertex_property_with_name<bool>(mesh_, "v:in_wireframe");
+        remove_vertex_property_with_name<surface_mesh::Vec3>(mesh_, "v:wireframe_sphere_scale");
+        remove_edge_property_with_name<bool>(mesh_, "e:in_wireframe");
+        remove_edge_property_with_name<std::pair<float, float>>(mesh_, "e:wireframe_cylinder_scale");
+
         Mesh::Vertex_property<bool> v_inwireframe = mesh_.vertex_property<bool>("v:in_wireframe", false); 
         Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
         Mesh::Edge_property<bool> e_inwireframe = mesh_.edge_property<bool>("e:in_wireframe", false); 
@@ -50,11 +51,11 @@ namespace mesh_processing {
 
         /* Once we are done we can swap the current mesh with the result of
          * the wireframe. */
-        if (result_.points().size() > 0) {
-            swap(result_);
+        if (result_.points().size() == 0) {
+            std::cout << "WARNING : No wireframe created." << std::endl;
         }
         else {
-            std::cout << "WARNING : No wireframe created." << std::endl;
+            swap(result_);
         }
         std::cout << result_.points().size() << " vertices inserted." << std::endl;
     }

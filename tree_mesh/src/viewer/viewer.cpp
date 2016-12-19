@@ -378,20 +378,34 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
 
     b = new Button(window_, "Wireframe");
     b->setCallback([this]() {
-        /* For max-plank re-meshed with height, use 0.2, 0.2. */
+        if (!reset_performed_){
+            this->reset_mesh();
+        }
+        reset_performed_ = false;
         this->mesh_->create_wire_frame();
         this->mesh_->compute_mesh_properties();
         this->refresh_mesh();
     });
 
+    b = new Button(window_, "Reset");
+    b->setCallback([this]() {
+        this->reset_mesh();
+        reset_performed_ = true;
+    });
+
     performLayout();
 
     initShaders();
-    //mesh_ = new mesh_processing::MeshProcessing("../models/bunny.off");
     const float diameters = 0.5f;
     mesh_ = new mesh_processing::TreeProcessing("../models/geralt_tex_roots.off", "../models/sphere.obj", "../models/cylinder_medium_poly.obj", diameters, diameters);
     this->refresh_mesh();
     this->refresh_trackball_center();
+}
+
+void Viewer::reset_mesh(void) {
+    this->mesh_->revert_changes();
+    this->mesh_->compute_mesh_properties();
+    this->refresh_mesh();
 }
 
 void Viewer::refresh_trackball_center() {
@@ -441,4 +455,5 @@ void Viewer::computeCameraMatrices(Eigen::Matrix4f &model,
 Viewer::~Viewer() {
     shader_.free();
     shaderNormals_.free();
+    delete mesh_;
 }

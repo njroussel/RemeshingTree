@@ -100,6 +100,9 @@ class Viewer : public nanogui::Screen {
         nanogui::Window *window_;
 
         mesh_processing::WireframeProcessing* mesh_;
+        bool reset_performed_ = false;
+
+        void reset_mesh(void);
 
         enum COLOR_MODE : int { NORMAL = 0, VALENCE = 1, CURVATURE = 2 };
         enum CURVATURE_TYPE : int { UNIMEAN = 2, LAPLACEBELTRAMI = 3, GAUSS = 4 };

@@ -63,6 +63,11 @@ namespace mesh_processing {
     void TreeProcessing::fill_wireframe_properties(Mesh::Vertex_property<bool> v_inwireframe, Mesh::Vertex_property<surface_mesh::Vec3> v_scale, Mesh::Edge_property<bool> e_inwireframe, Mesh::Edge_property<std::pair<float, float>> e_scale) {
         /* THIS IS WHERE THE MAGIC HAPPENS ! */
 
+        /* Reset properties from previous runs. */
+        remove_edge_property_with_name<bool>(mesh_, "v:is_root");
+        remove_edge_property_with_name<float>(mesh_, "v:v_abslength");
+        remove_edge_property_with_name<float>(mesh_, "v:v_rellength");
+
         /* Set the private properties to avoid clutter. */
         v_inwireframe_ = v_inwireframe;
         v_scale_ = v_scale;
