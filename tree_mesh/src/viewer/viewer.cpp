@@ -381,7 +381,43 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
 
     b = new Button(window_, "Wireframe");
     b->setCallback([this]() {
+            if (!reset_performed_){
+                this->reset_mesh();
+            }
+            reset_performed_ = false;
+            this->mesh_->create_wire_frame(wireframeSphereDiameterTextBox->value(), wireframeCylinderDiameterTextBox->value());
+            this->mesh_->compute_mesh_properties();
+            this->refresh_mesh();
     });
+
+    popupBtn = new PopupButton(window_, "Wireframe Params.");
+    popup = popupBtn->popup();
+    popup->setLayout(new GroupLayout());
+
+    Widget* panel = new Widget(popup);
+    panel->setLayout(new GroupLayout());
+
+    //panel = new Widget(popup);
+    GridLayout *layout = new GridLayout(Orientation::Horizontal, 2,
+                                        Alignment::Middle, 15, 5);
+    layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
+    layout->setSpacing(0, 10);
+    panel->setLayout(layout);
+    new Label(panel, "Spheres diameter:", "sans-bold");
+    wireframeSphereDiameterTextBox = new FloatBox<float>(panel, 0.05f);
+    wireframeSphereDiameterTextBox->setEditable(true);
+    wireframeSphereDiameterTextBox->setFixedSize(Vector2i(50, 20));
+    wireframeSphereDiameterTextBox->setDefaultValue("10");
+    wireframeSphereDiameterTextBox->setFontSize(16);
+    wireframeSphereDiameterTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    new Label(panel, "Cylinders diameter:", "sans-bold");
+    wireframeCylinderDiameterTextBox = new FloatBox<float>(panel, 0.05f);
+    wireframeCylinderDiameterTextBox->setEditable(true);
+    wireframeCylinderDiameterTextBox->setFixedSize(Vector2i(50, 20));
+    wireframeCylinderDiameterTextBox->setDefaultValue("2.0");
+    wireframeCylinderDiameterTextBox->setFontSize(16);
+    wireframeCylinderDiameterTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
 
     b = new Button(window_, "Tree");
     b->setCallback([this]() {
@@ -406,15 +442,15 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     });
 
     /* ###### layout for tree  parameters. */
-    popupBtn = new PopupButton(window_, "Params.");
+    popupBtn = new PopupButton(window_, "Tree Params.");
     popup = popupBtn->popup();
     popup->setLayout(new GroupLayout());
 
-    Widget* panel = new Widget(popup);
+    panel = new Widget(popup);
     panel->setLayout(new GroupLayout());
 
     panel = new Widget(popup);
-    GridLayout *layout = new GridLayout(Orientation::Horizontal, 2,
+    layout = new GridLayout(Orientation::Horizontal, 2,
                                         Alignment::Middle, 15, 5);
     layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
     layout->setSpacing(0, 10);

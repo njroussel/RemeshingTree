@@ -34,17 +34,28 @@ namespace mesh_processing {
     }
    
     void WireframeProcessing::create_wire_frame() {
+        inner_create_wireframe(true, ZERO_VEC, ZERO_PAIR);
+    }
+
+    void WireframeProcessing::create_wire_frame(const float sphere_size, const float cylinder_diameter) {
+        inner_create_wireframe(false, surface_mesh::Vec3(sphere_size), std::make_pair(cylinder_diameter, cylinder_diameter));
+    }
+
+    void WireframeProcessing::inner_create_wireframe(const bool custom, const surface_mesh::Vec3 sphere_scale, const std::pair<float, float> cylinder_scale) {
         result_ = Mesh();
         remove_vertex_property_with_name<bool>(mesh_, "v:in_wireframe");
         remove_vertex_property_with_name<surface_mesh::Vec3>(mesh_, "v:wireframe_sphere_scale");
         remove_edge_property_with_name<bool>(mesh_, "e:in_wireframe");
         remove_edge_property_with_name<std::pair<float, float>>(mesh_, "e:wireframe_cylinder_scale");
 
-        Mesh::Vertex_property<bool> v_inwireframe = mesh_.vertex_property<bool>("v:in_wireframe", false); 
-        Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", ZERO_VEC); 
-        Mesh::Edge_property<bool> e_inwireframe = mesh_.edge_property<bool>("e:in_wireframe", false); 
-        Mesh::Edge_property<std::pair<float, float>> e_scale = mesh_.edge_property<std::pair<float, float>>("e:wireframe_cylinder_scale", ZERO_PAIR); 
-        fill_wireframe_properties(v_inwireframe, v_scale, e_inwireframe, e_scale);
+        Mesh::Vertex_property<bool> v_inwireframe = mesh_.vertex_property<bool>("v:in_wireframe", custom ? false : true); 
+        Mesh::Vertex_property<surface_mesh::Vec3> v_scale = mesh_.vertex_property<surface_mesh::Vec3>("v:wireframe_sphere_scale", custom ? ZERO_VEC : sphere_scale); 
+        Mesh::Edge_property<bool> e_inwireframe = mesh_.edge_property<bool>("e:in_wireframe", custom ? false : true); 
+        Mesh::Edge_property<std::pair<float, float>> e_scale = mesh_.edge_property<std::pair<float, float>>("e:wireframe_cylinder_scale", custom ? ZERO_PAIR : cylinder_scale); 
+
+        if (custom) {
+            fill_wireframe_properties(v_inwireframe, v_scale, e_inwireframe, e_scale);
+        }
 
         replace_vertices();
         replace_edges();
@@ -58,6 +69,7 @@ namespace mesh_processing {
             swap(result_);
         }
         std::cout << result_.points().size() << " vertices inserted." << std::endl;
+
     }
 
     void WireframeProcessing::replace_vertices() {

@@ -116,6 +116,8 @@ class Viewer : public nanogui::Screen {
         mesh_processing::REMESHING_TYPE remeshing_type = mesh_processing::AVERAGE;
 
         PopupButton *popupCurvature;
+        FloatBox<float>* wireframeSphereDiameterTextBox;
+        FloatBox<float>* wireframeCylinderDiameterTextBox;
         FloatBox<float>* sphereDiameterTextBox;
         FloatBox<float>* cylinderDiameterTextBox;
         FloatBox<float>* branchMaxLengthTextBox;

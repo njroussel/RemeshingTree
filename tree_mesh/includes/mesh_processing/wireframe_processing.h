@@ -54,8 +54,10 @@ namespace mesh_processing {
 
             /* Create a wireframe version of the current mesh. */
             void create_wire_frame(void);
+            void create_wire_frame(const float sphere_size, const float cylinder_diameter);
 
         protected:
+            void inner_create_wireframe(const bool custom, const surface_mesh::Vec3 sphere_scale, const std::pair<float, float> cylinder_scale);
             /* Replace vertices with spheres. */
             void replace_vertices();
 
