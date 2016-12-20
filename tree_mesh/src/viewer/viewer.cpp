@@ -278,11 +278,8 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     window_->setLayout(new GroupLayout());
 
     new Label(window_, "Input/Output", "sans-bold");
-    PopupButton *popupBtn = new PopupButton(window_, "Open a mesh", ENTYPO_ICON_EXPORT);
-    Popup *popup = popupBtn->popup();
-    popup->setLayout(new GroupLayout());
 
-    Button *b = new Button(popup, "Open mesh ...");
+    Button *b = new Button(window_, "Open mesh ...");
     b->setCallback([this]() {
             string filename = nanogui::file_dialog({{"obj", "Wavefront OBJ"},
                     {"ply", "Stanford PLY"},
@@ -305,8 +302,8 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
 
     /* ## Display option bloat. */
 
-    popupBtn = new PopupButton(window_, "Infos Display");
-    popup = popupBtn->popup();
+    PopupButton *popupBtn = new PopupButton(window_, "Infos Display");
+    Popup *popup = popupBtn->popup();
     popup->setLayout(new GroupLayout());
 
     Widget* panel = new Widget(popup);
