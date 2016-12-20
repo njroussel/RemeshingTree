@@ -23,7 +23,7 @@ namespace mesh_processing {
     }
 
     MeshProcessing::~MeshProcessing() {
-        // TODO
+        /* Nothing to be done. */
     }
 
     void MeshProcessing::export_mesh(const std::string& filename){

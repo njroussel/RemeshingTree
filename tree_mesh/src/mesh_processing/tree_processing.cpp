@@ -248,7 +248,6 @@ namespace mesh_processing {
                     split_count ++;
                 }
 
-                // TODO remove first cond
                 if (to_keep.size() <= split_count && !close_to_branch) {
                     split_count = std::min(split_count, (int)neighbors.size());
 

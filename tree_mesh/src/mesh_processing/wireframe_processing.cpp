@@ -10,9 +10,7 @@
 #define IDENTITY glm::mat4(1.0f)
 #define ZERO_VEC surface_mesh::Vec3(0.0f, 0.0f, 0.0f)
 #define ZERO_PAIR std::pair<float, float>(0.0f, 0.0f)
-#define DUMMY 1.0f
 
-#define USE_PROPERTY true
 #define DEFAULT_SPHERE_DIAMETER 0.02f
 #define DEFAULT_CYLINDER_DIAMETER 0.02f
 
@@ -82,8 +80,7 @@ namespace mesh_processing {
         vc_end = mesh_.vertices_end();
         do {
             Mesh::Vertex v = *vc;
-            // TODO : REmoVe USE_PROPERTY
-            if (!USE_PROPERTY || v_wireframe[v]) {
+            if (v_wireframe[v]) {
                 Point p = mesh_.position(v);
                 /* We insert the sphere at the position of the current vertex. */
                 insert_mesh(sphere_, p, surface_mesh::Vec3(0, 1, 0), 0.0f, v_scale[v], false);
@@ -102,8 +99,7 @@ namespace mesh_processing {
 
         do {
             Mesh::Edge e = *ec;
-            // TODO : remove macro
-            if (!USE_PROPERTY || e_wireframe[e]) {
+            if (e_wireframe[e]) {
                 Mesh::Vertex v0 = mesh_.vertex(e, 0);
                 Mesh::Vertex v1 = mesh_.vertex(e, 1);
                 Point p0 = mesh_.position(v0);
