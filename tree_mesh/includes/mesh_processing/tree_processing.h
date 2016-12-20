@@ -41,9 +41,7 @@ namespace mesh_processing {
              */
             TreeProcessing(const std::string& filename,
                            const std::string& sphere_filename,
-                           const std::string& cylinder_filename,
-                           const float sphere_base_diameter,
-                           const float cylinder_base_diameter);
+                           const std::string& cylinder_filename);
 
             /* Destructor. */
             ~TreeProcessing();
@@ -112,9 +110,9 @@ namespace mesh_processing {
             float get_scale_factor(Mesh::Vertex);
 
             /* Some generation paramters. */
-            /* Sphere and cylinder width as see as the bottom of the trunk. */
-            float sphere_base_diameter_;
-            float cylinder_base_diameter_;
+            /* Sphere and cylinder width as seen at the bottom of the trunk. */
+            float sphere_base_diameter_ = 0.5f;
+            float cylinder_base_diameter_ = 0.5f;
             /* Maximum lenth possible for a branch. */
             float max_length_ = 15.0f;
             /* Make the trunk a big bigger. */

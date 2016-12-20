@@ -6,11 +6,7 @@
 namespace mesh_processing {
     TreeProcessing::TreeProcessing(const std::string& filename,
             const std::string& sphere_filename,
-            const std::string& cylinder_filename,
-            const float sphere_base_diameter,
-            const float cylinder_base_diameter) : WireframeProcessing(filename, sphere_filename, cylinder_filename) {
-        sphere_base_diameter_ = sphere_base_diameter;
-        cylinder_base_diameter_ = cylinder_base_diameter;
+            const std::string& cylinder_filename) : WireframeProcessing(filename, sphere_filename, cylinder_filename) {
         std::srand(14567);
     }
 

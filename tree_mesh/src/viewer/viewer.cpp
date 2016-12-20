@@ -491,8 +491,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     performLayout();
 
     initShaders();
-    const float diameters = 0.5f;
-    mesh_ = new mesh_processing::TreeProcessing("../models/geralt_tex_roots.off", "../models/sphere.obj", "../models/cylinder_medium_poly.obj", diameters, diameters);
+    mesh_ = new mesh_processing::TreeProcessing("../models/geralt_tex_roots.off", "../models/sphere.obj", "../models/cylinder_medium_poly.obj");
     this->refresh_mesh();
     this->refresh_trackball_center();
 }
