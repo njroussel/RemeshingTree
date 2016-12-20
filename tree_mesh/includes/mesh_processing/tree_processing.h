@@ -53,6 +53,14 @@ namespace mesh_processing {
              */
             void export_mesh(const std::string& filename);
 
+            /* Create the tree wireframe with given parameters.
+             * @param sphere_base_diameter : the sphere diameter as seen on the lowest point of the trunk.
+             * @param cylinder_base_diameter : the cylinder diameter as seen on the lowest point of the trunk. 
+             * @param max_length : maximum length of a branch.
+             * @param root_scale_multiplier : scale emplification of the root.
+             * @param min_dot_between_branches : minimum dot for neighbor filtering, see report.
+             * @param min_rel_len_before_split : minimum relative length needed to split a branch.
+             */ 
             void create_tree_wireframe(const float sphere_base_diameter,
                                        const float cylinder_base_diameter,
                                        const float max_length,

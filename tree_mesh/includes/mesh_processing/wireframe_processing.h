@@ -52,12 +52,28 @@ namespace mesh_processing {
             /* Desctructor */
             ~WireframeProcessing(void);
 
-            /* Create a wireframe version of the current mesh. */
+            /* Create a wireframe after calling the fill_wireframe_properties
+             * method.
+             */
             void create_wire_frame(void);
+
+            /* Create a wireframe in which all vertices and edges are in the
+             * wireframe, with fixed size.
+             * @param sphere_size : The diameter of the sphere.
+             * @param cylinder_diameter : The diameter of the cylinders.
+             */
             void create_wire_frame(const float sphere_size, const float cylinder_diameter);
 
         protected:
+            /* Helper method for the create_wire_frame method.
+             * @param custom : Tell if the fill_wireframe_properties method
+             *  needs to be called before the transformation.
+             * @param sphere_scale : Default sphere scale.
+             * @parma cylinder_scale : Default cylinder scale.
+             * Note : The last two args are ignored when custom = true.
+             */
             void inner_create_wireframe(const bool custom, const surface_mesh::Vec3 sphere_scale, const std::pair<float, float> cylinder_scale);
+
             /* Replace vertices with spheres. */
             void replace_vertices();
 
@@ -85,8 +101,9 @@ namespace mesh_processing {
 
             Mesh sphere_;
             Mesh cylinder_;
-            Mesh result_; /* Will store the result of the transformation and
-                             then returned to the callee. The original mesh_
-                             is *NOT* modified by this class. */
-    };
+
+            /* Will store the result of the transformation and
+             then replace the mesh_.*/
+            Mesh result_;
+   };
 }

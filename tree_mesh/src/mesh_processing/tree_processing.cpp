@@ -72,6 +72,7 @@ namespace mesh_processing {
         root_scale_multiplier_    = root_scale_multiplier;
         min_dot_between_branches_ = min_dot_between_branches;
         min_rel_len_before_split_ = min_rel_len_before_split;
+        /* create_wire_frame will call the fill_wireframe_properties */
         create_wire_frame();
     }
 

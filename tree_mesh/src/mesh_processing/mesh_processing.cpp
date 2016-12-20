@@ -30,6 +30,10 @@ namespace mesh_processing {
 	    mesh_.write(filename);
     }
 
+    void MeshProcessing::revert_changes(void) {
+        mesh_ = mesh_init_;
+    }
+
     const surface_mesh::Point MeshProcessing::get_mesh_center() {
         return mesh_center_;
     }

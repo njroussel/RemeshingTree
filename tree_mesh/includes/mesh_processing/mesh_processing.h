@@ -15,13 +15,8 @@
 #include <surface_mesh/types.h>
 #include <Eigen/Sparse>
 
-// TODO Remove this shit
-//#define LOW_POLY_REMESHING
-#ifdef LOW_POLY_REMESHING
-#define gaussian(t) (exp(-std::pow((t) - 0.0f, 2.0f) / (2 * 0.5*0.5)))
-#else
+/* gaussian curve, used by remeshing. */
 #define gaussian(t) (exp(-std::pow((t) - 0.0f, 2.0f) / (2 * 0.25*0.25)))
-#endif
 
 using std::string;
 using surface_mesh::Point;
@@ -70,11 +65,18 @@ namespace mesh_processing {
             void calc_uniform_mean_curvature();
             void calc_gauss_curvature();
 
-            /* Some operations on the mesh. */
+            /* Below are the operations we added. */
+
+            /* Compute the laplacian operator for a vertex. */
             surface_mesh::Vec3 laplacian_operator(Mesh::Vertex x);
+
+            /* Compute the laplace beltrami operator for a vertex. */
             surface_mesh::Vec3 laplace_beltrami_operator(Mesh::Vertex x, bool normalize);
 
+            /* Return the underlying mesh. */
             const Mesh& mesh();
+
+            /* Swap the current mesh with the one given in parameter. */
             void swap(Mesh& mesh);
 
             /* Export the mesh to the current directory.
@@ -82,9 +84,8 @@ namespace mesh_processing {
              */
             void export_mesh(const std::string& filename);
 
-            void revert_changes(void) {
-                mesh_ = mesh_init_;
-            }
+            /* Restore the original mesh loaded. */ 
+            void revert_changes(void);
 
         private:
             void calc_weights();

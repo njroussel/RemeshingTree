@@ -116,6 +116,9 @@ class Viewer : public nanogui::Screen {
         mesh_processing::REMESHING_TYPE remeshing_type = mesh_processing::AVERAGE;
 
         PopupButton *popupCurvature;
+
+        /* Added */
+        /* Here are all the text boxes for parameters. */
         FloatBox<float>* wireframeSphereDiameterTextBox;
         FloatBox<float>* wireframeCylinderDiameterTextBox;
         FloatBox<float>* sphereDiameterTextBox;
