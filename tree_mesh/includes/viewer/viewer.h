@@ -124,7 +124,7 @@ class Viewer : public nanogui::Screen {
         FloatBox<float>* sphereDiameterTextBox;
         FloatBox<float>* cylinderDiameterTextBox;
         FloatBox<float>* branchMaxLengthTextBox;
-        FloatBox<float>* rootScaleMultTextBox;
+        FloatBox<float>* trunkScaleMultTextBox;
         FloatBox<float>* minDotBetweenBranchesTextBox;
         FloatBox<float>* minRelLengthBeforeSplitTextBox;
 };

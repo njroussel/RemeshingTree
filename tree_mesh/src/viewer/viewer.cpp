@@ -414,7 +414,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
         mesh_->create_tree_wireframe(sphereDiameterTextBox->value(),
                                      cylinderDiameterTextBox->value(),
                                      branchMaxLengthTextBox->value(),
-                                     rootScaleMultTextBox->value(),
+                                     trunkScaleMultTextBox->value(),
                                      minDotBetweenBranchesTextBox->value(),
                                      minRelLengthBeforeSplitTextBox->value());
         this->mesh_->compute_mesh_properties();
@@ -458,13 +458,13 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     branchMaxLengthTextBox->setFontSize(16);
     branchMaxLengthTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
 
-    new Label(panel, "Root scale multiplier:", "sans-bold");
-    rootScaleMultTextBox = new FloatBox<float>(panel, 1.2);
-    rootScaleMultTextBox->setEditable(true);
-    rootScaleMultTextBox->setFixedSize(Vector2i(50, 20));
-    rootScaleMultTextBox->setDefaultValue("2.0");
-    rootScaleMultTextBox->setFontSize(16);
-    rootScaleMultTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+    new Label(panel, "Trunk scale multiplier:", "sans-bold");
+    trunkScaleMultTextBox = new FloatBox<float>(panel, 1.2);
+    trunkScaleMultTextBox->setEditable(true);
+    trunkScaleMultTextBox->setFixedSize(Vector2i(50, 20));
+    trunkScaleMultTextBox->setDefaultValue("2.0");
+    trunkScaleMultTextBox->setFontSize(16);
+    trunkScaleMultTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
 
     new Label(panel, "Min. dot between branches:", "sans-bold");
     minDotBetweenBranchesTextBox = new FloatBox<float>(panel, 0.0);

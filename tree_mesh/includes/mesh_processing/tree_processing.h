@@ -57,14 +57,14 @@ namespace mesh_processing {
              * @param sphere_base_diameter : the sphere diameter as seen on the lowest point of the trunk.
              * @param cylinder_base_diameter : the cylinder diameter as seen on the lowest point of the trunk. 
              * @param max_length : maximum length of a branch.
-             * @param root_scale_multiplier : scale emplification of the root.
+             * @param trunk_scale_multiplier : scale emplification of the trunk.
              * @param min_dot_between_branches : minimum dot for neighbor filtering, see report.
              * @param min_rel_len_before_split : minimum relative length needed to split a branch.
              */ 
             void create_tree_wireframe(const float sphere_base_diameter,
                                        const float cylinder_base_diameter,
                                        const float max_length,
-                                       const float root_scale_multiplier,
+                                       const float trunk_scale_multiplier,
                                        const float min_dot_between_branches,
                                        const float min_rel_len_before_split);
 
@@ -90,13 +90,13 @@ namespace mesh_processing {
              */
             std::vector<Mesh::Vertex> get_neighbors(Mesh::Vertex v, bool not_in_wireframe);
 
-            /* Returns true iff the given vertex is contained in the main root
+            /* Returns true iff the given vertex is contained in the main trunk
              * of the tree.
              */
-            bool is_root(Mesh::Vertex v);
+            bool is_trunk(Mesh::Vertex v);
 
-            /* Return the lowest root vertex. */
-            Mesh::Vertex get_lowest_root_vertex(void);
+            /* Return the lowest trunk vertex. */
+            Mesh::Vertex get_lowest_trunk_vertex(void);
 
             /* Randomly decides if a given vertex can split or not. */ 
             bool split(Mesh::Vertex v);
@@ -118,13 +118,13 @@ namespace mesh_processing {
             /* Maximum lenth possible for a branch. */
             float max_length_ = 15.0f;
             /* Make the trunk a big bigger. */
-            float root_scale_multiplier_ = 1.2f;
+            float trunk_scale_multiplier_ = 1.2f;
             /* Minimum dot between 2 branches. */
             float min_dot_between_branches_ = 0.0f;
             /* Min relative length before split. */
             float min_rel_len_before_split_ = 1.0f;
-            /* The roots of the tree. */
-            std::vector<Mesh::Vertex> roots_;
+            /* The trunks of the tree. */
+            std::vector<Mesh::Vertex> trunks_;
 
             /* All the wireframe related properties stored as members so that
              * we can easily access them in any helper method. */
@@ -136,14 +136,14 @@ namespace mesh_processing {
             /* Some new properties. */
 
             /* Absolute length of a vertex, that is the length from the
-             * lowest vertex of the root. */
+             * lowest vertex of the trunk. */
             Mesh::Vertex_property<float> v_abs_length_;
 
             /* Relative length of a vertex, that is the lenght from the last
              * split. */
             Mesh::Vertex_property<float> v_rel_length_;
 
-            /* true iff the vertex is in the root of the tree. */
-            Mesh::Vertex_property<bool> v_root_;
+            /* true iff the vertex is in the trunk of the tree. */
+            Mesh::Vertex_property<bool> v_trunk_;
     };
 }

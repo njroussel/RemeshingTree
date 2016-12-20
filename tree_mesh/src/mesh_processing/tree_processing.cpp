@@ -36,8 +36,8 @@ namespace mesh_processing {
 	    return neighbors;
     }
 
-    bool TreeProcessing::is_root(Mesh::Vertex v) {
-        /* A vertex belong to the root if its color is red. */
+    bool TreeProcessing::is_trunk(Mesh::Vertex v) {
+        /* A vertex belong to the trunk if its color is red. */
         Mesh::Vertex_property<surface_mesh::Color> v_color = mesh_.get_vertex_property<surface_mesh::Color>("v:color");
         surface_mesh::Color c = v_color[v];
         const float th = 0.2f;
@@ -45,11 +45,11 @@ namespace mesh_processing {
         return c[1] <= th && c[2] <= th;
     }
 
-    Mesh::Vertex TreeProcessing::get_lowest_root_vertex(void) {
+    Mesh::Vertex TreeProcessing::get_lowest_trunk_vertex(void) {
         Mesh::Vertex curr;
         float curr_height = FLT_MAX;
         for (Mesh::Vertex v : mesh_.vertices()) {
-            if (v_root_[v]) {
+            if (v_trunk_[v]) {
                 float h = mesh_.position(v)[1];
                 if (h < curr_height) {
                     curr_height = h;
@@ -63,13 +63,13 @@ namespace mesh_processing {
     void TreeProcessing::create_tree_wireframe(const float sphere_base_diameter,
                                                const float cylinder_base_diameter,
                                                const float max_length,
-                                               const float root_scale_multiplier,
+                                               const float trunk_scale_multiplier,
                                                const float min_dot_between_branches,
                                                const float min_rel_len_before_split) {
         sphere_base_diameter_     = sphere_base_diameter;
         cylinder_base_diameter_   = cylinder_base_diameter;
         max_length_               = max_length;
-        root_scale_multiplier_    = root_scale_multiplier;
+        trunk_scale_multiplier_    = trunk_scale_multiplier;
         min_dot_between_branches_ = min_dot_between_branches;
         min_rel_len_before_split_ = min_rel_len_before_split;
         /* create_wire_frame will call the fill_wireframe_properties */
@@ -80,7 +80,7 @@ namespace mesh_processing {
         /* THIS IS WHERE THE MAGIC HAPPENS ! */
 
         /* Reset properties from previous runs. */
-        remove_edge_property_with_name<bool>(mesh_, "v:is_root");
+        remove_edge_property_with_name<bool>(mesh_, "v:is_trunk");
         remove_edge_property_with_name<float>(mesh_, "v:v_abslength");
         remove_edge_property_with_name<float>(mesh_, "v:v_rellength");
 
@@ -89,21 +89,21 @@ namespace mesh_processing {
         v_scale_ = v_scale;
         e_inwireframe_ = e_inwireframe;
         e_scale_ = e_scale;
-        v_root_ = mesh_.vertex_property<bool>("v:is_root", false);
+        v_trunk_ = mesh_.vertex_property<bool>("v:is_trunk", false);
         v_abs_length_ = mesh_.vertex_property<float>("v:v_abslength", 0.0f);
         v_rel_length_ = mesh_.vertex_property<float>("v:v_rellength", 0.0f);
 
-        /* Fill is_root property */
+        /* Fill is_trunk property */
         for (Mesh::Vertex v : mesh_.vertices()) {
-            if (is_root(v)) {
-                v_root_[v] = true;
+            if (is_trunk(v)) {
+                v_trunk_[v] = true;
             }
         }
 
         std::queue<branch_t> to_process;
         /* Initially the queue will contain only the lowest vertex of the
-         * root from there the inner method does all the work. */
-        Mesh::Vertex start = get_lowest_root_vertex();
+         * trunk from there the inner method does all the work. */
+        Mesh::Vertex start = get_lowest_trunk_vertex();
         v_inwireframe_[start] = true;
 
         to_process.push({start, start});
@@ -142,9 +142,9 @@ namespace mesh_processing {
     }
 
     float TreeProcessing::get_scale_factor(Mesh::Vertex v) {
-        /* Note that the root is a little bit bigger so that we easily
+        /* Note that the trunk is a little bit bigger so that we easily
          * see the important features of the face. */
-        return (1.0f - (v_abs_length_[v] / max_length_)) * (v_root_[v] ? root_scale_multiplier_ : 1.0f);
+        return (1.0f - (v_abs_length_[v] / max_length_)) * (v_trunk_[v] ? trunk_scale_multiplier_ : 1.0f);
     }
 
 #define keep(v) \
@@ -198,14 +198,14 @@ namespace mesh_processing {
             /* To keep will be the result of filtering the set of neighbors. */
             std::vector<Mesh::Vertex> to_keep;
 
-            /* Deal with neighbors belonging to the root. Those ones are
+            /* Deal with neighbors belonging to the trunk. Those ones are
              * always kept but only if the current vertex is also in the 
-             * root. */
+             * trunk. */
             for (Mesh::Vertex n : neighbors_cpy) {
-                if (v_root_[n]) {
-                    if (v_root_[current_vertex]) {
-                        /* We are allowed to continue our path on the root,
-                         * iff we are on the root from the start. */
+                if (v_trunk_[n]) {
+                    if (v_trunk_[current_vertex]) {
+                        /* We are allowed to continue our path on the trunk,
+                         * iff we are on the trunk from the start. */
                         keep(n);
                     }
                     else {
@@ -236,7 +236,7 @@ namespace mesh_processing {
 
             /* We don't allow split with more than 2 branches. */ 
             if (to_keep.size() < 2) {
-                /* If we kept less than 2 neighbors (root in this case) we
+                /* If we kept less than 2 neighbors (trunk in this case) we
                  * consider splitting. */
 
                 /* We impse a condition on splitting, the last split must have
@@ -256,7 +256,7 @@ namespace mesh_processing {
                         /* Case 1 : No split occurs. */
                         Mesh::Vertex next;
                         if (to_keep.size() == 0) {
-                            /* If we are not following a root, we try to follow 
+                            /* If we are not following a trunk, we try to follow 
                              * the direction of the current branch as much as 
                              * possible, thus we would like to take the next 
                              * neighbor that minimizes the change of direction.
@@ -274,19 +274,19 @@ namespace mesh_processing {
                         }
                         else {
                             /* Here, we are in the situation where :
-                             * 1) We were forced to follow a root
-                             * 2) The root does no split (otherwise to_keep
+                             * 1) We were forced to follow a trunk
+                             * 2) The trunk does no split (otherwise to_keep
                              *      would be of size 2.
                              * 3) We want to split 'naturally'
                              * The idea is to take the neighbor that goes as far
-                             * as possible from the root. ie the angle between the
-                             * neighbor and the root is maximized. */
+                             * as possible from the trunk. ie the angle between the
+                             * neighbor and the trunk is maximized. */
                             Mesh::Vertex winner;
                             float best_angle = FLT_MIN;
                             for (Mesh::Vertex v : neighbors) {
                                 Point pos_v = normalize(mesh_.position(v)-current_vertex_pos);
-                                Point pos_root = normalize(mesh_.position(to_keep[0])-current_vertex_pos);
-                                float d = dot(pos_v, pos_root);
+                                Point pos_trunk = normalize(mesh_.position(to_keep[0])-current_vertex_pos);
+                                float d = dot(pos_v, pos_trunk);
                                 float angle = std::acos(d);
                                 if (angle > best_angle) {
                                     winner = v;
