@@ -69,13 +69,15 @@ namespace mesh_processing {
              * @param trunk_scale_multiplier : scale emplification of the trunk.
              * @param min_dot_between_branches : minimum dot for neighbor filtering, see report.
              * @param min_rel_len_before_split : minimum relative length needed to split a branch.
+             * @param draw_trunk[] : Mask array to indicate which trunk needs to be grown.
              */ 
             void create_tree_wireframe(const float sphere_base_diameter,
                                        const float cylinder_base_diameter,
                                        const float max_length,
                                        const float trunk_scale_multiplier,
                                        const float min_dot_between_branches,
-                                       const float min_rel_len_before_split);
+                                       const float min_rel_len_before_split,
+                                       const bool draw_trunk[MAX_TRUNK_COUNT]);
 
         private:
             /* Main method of our project.
@@ -176,5 +178,8 @@ namespace mesh_processing {
                 false,
                 false
             };
+
+            /* Which trunk will be grown during the wireframe creation. */
+            bool draw_trunk_[MAX_TRUNK_COUNT];
     };
 }

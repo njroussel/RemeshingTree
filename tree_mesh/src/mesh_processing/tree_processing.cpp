@@ -33,7 +33,8 @@ namespace mesh_processing {
     }
 
     bool TreeProcessing::is_trunk(Mesh::Vertex v) {
-        return get_trunk_index(v) != -1;
+        const int idx = get_trunk_index(v);
+        return idx != -1 && draw_trunk_[idx];
     }
 
     static bool approx_same_color(surface_mesh::Color c1, surface_mesh::Color c2) {
@@ -73,13 +74,17 @@ namespace mesh_processing {
                                                const float max_length,
                                                const float trunk_scale_multiplier,
                                                const float min_dot_between_branches,
-                                               const float min_rel_len_before_split) {
+                                               const float min_rel_len_before_split,
+                                               const bool draw_trunk[MAX_TRUNK_COUNT]) {
         sphere_base_diameter_     = sphere_base_diameter;
         cylinder_base_diameter_   = cylinder_base_diameter;
         max_length_               = max_length;
         trunk_scale_multiplier_    = trunk_scale_multiplier;
         min_dot_between_branches_ = min_dot_between_branches;
         min_rel_len_before_split_ = min_rel_len_before_split;
+        if (draw_trunk_ != memcpy(draw_trunk_, draw_trunk, MAX_TRUNK_COUNT * sizeof(bool))) {
+            throw "Error while copying draw_trunk array.";
+        }
         /* create_wire_frame will call the fill_wireframe_properties */
         create_wire_frame();
     }
@@ -91,6 +96,11 @@ namespace mesh_processing {
         remove_edge_property_with_name<bool>(mesh_, "v:is_trunk");
         remove_edge_property_with_name<float>(mesh_, "v:v_abslength");
         remove_edge_property_with_name<float>(mesh_, "v:v_rellength");
+        remove_edge_property_with_name<int>(mesh_, "v:trunk_index");
+
+        for (int i = 0; i < MAX_TRUNK_COUNT; ++i) {
+            trunk_existing[i] = false;
+        }
 
         /* Set the private properties to avoid clutter. */
         v_inwireframe_ = v_inwireframe;

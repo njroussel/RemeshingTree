@@ -407,12 +407,19 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
             this->reset_mesh();
         }
         reset_performed_ = false;
+        const bool draw_trunk[] = {
+            redTrunkCheckBox->checked(),
+            greenTrunkCheckBox->checked(),
+            blueTrunkCheckBox->checked()
+        };
+        std::cout << "draw_trunk : " << draw_trunk[0] << " " << draw_trunk[1] << " " << draw_trunk[2] << std::endl;
         mesh_->create_tree_wireframe(sphereDiameterTextBox->value(),
                                      cylinderDiameterTextBox->value(),
                                      branchMaxLengthTextBox->value(),
                                      trunkScaleMultTextBox->value(),
                                      minDotBetweenBranchesTextBox->value(),
-                                     minRelLengthBeforeSplitTextBox->value());
+                                     minRelLengthBeforeSplitTextBox->value(),
+                                     draw_trunk);
         this->mesh_->compute_mesh_properties();
         this->refresh_mesh();
     });
