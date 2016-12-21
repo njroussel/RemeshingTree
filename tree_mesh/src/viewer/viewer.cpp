@@ -278,7 +278,6 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     window_->setLayout(new GroupLayout());
 
     new Label(window_, "Input/Output", "sans-bold");
-
     Button *b = new Button(window_, "Open mesh ...");
     b->setCallback([this]() {
             string filename = nanogui::file_dialog({{"obj", "Wavefront OBJ"},
@@ -427,7 +426,7 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     panel->setLayout(new GroupLayout());
 
     layout = new GridLayout(Orientation::Horizontal, 2,
-                                        Alignment::Middle, 15, 5);
+                                        Alignment::Middle, 15, 8);
     layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
     layout->setSpacing(0, 10);
     panel->setLayout(layout);
@@ -478,6 +477,14 @@ Viewer::Viewer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "DGP Viewer") {
     minRelLengthBeforeSplitTextBox->setDefaultValue("2.0");
     minRelLengthBeforeSplitTextBox->setFontSize(16);
     minRelLengthBeforeSplitTextBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
+
+    new Label(panel, "Red Trunk:", "sans-bold");
+    redTrunkCheckBox = new CheckBox(panel, "");
+    redTrunkCheckBox->setChecked(true);
+    new Label(panel, "Green Trunk:", "sans-bold");
+    greenTrunkCheckBox = new CheckBox(panel, "");
+    new Label(panel, "Blue Trunk:", "sans-bold");
+    blueTrunkCheckBox = new CheckBox(panel, "");
 
     b = new Button(window_, "Reset");
     b->setCallback([this]() {

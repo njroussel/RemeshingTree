@@ -18,6 +18,7 @@
 #include <nanogui/popupbutton.h>
 #include <nanogui/label.h>
 #include <nanogui/button.h>
+#include <nanogui/checkbox.h>
 #include <nanogui/textbox.h>
 #include <nanogui/tabwidget.h>
 #include <nanogui/combobox.h>
@@ -127,4 +128,8 @@ class Viewer : public nanogui::Screen {
         FloatBox<float>* trunkScaleMultTextBox;
         FloatBox<float>* minDotBetweenBranchesTextBox;
         FloatBox<float>* minRelLengthBeforeSplitTextBox;
+
+        CheckBox *redTrunkCheckBox;
+        CheckBox *greenTrunkCheckBox;
+        CheckBox *blueTrunkCheckBox;
 };
