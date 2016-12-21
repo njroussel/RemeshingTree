@@ -36,12 +36,19 @@ namespace mesh_processing {
         return get_trunk_index(v) != -1;
     }
 
+    static bool approx_same_color(surface_mesh::Color c1, surface_mesh::Color c2) {
+        return distance(c1, c2) < 1.0f;
+    }
+
     int TreeProcessing::get_trunk_index(Mesh::Vertex v) {
         Mesh::Vertex_property<surface_mesh::Color> v_color = mesh_.get_vertex_property<surface_mesh::Color>("v:color");
         for (int i = 0; i < MAX_TRUNK_COUNT; ++i) {
-            if (v_color[v] == trunk_colors[i]) {
+            if (approx_same_color(v_color[v], trunk_colors[i])) {
                 return i;
             }
+        }
+        if (v_color[v] != surface_mesh::Color(1, 1, 1)) {
+            DEBUG("Bogus color : " << v_color[v]);
         }
         return -1;
     }
@@ -129,6 +136,10 @@ namespace mesh_processing {
 
         /* Start the algo. */
         inner_fill(to_process);
+        for (Mesh::Vertex v : mesh_.vertices()) {
+            if (v_trunk_[v] && !v_inwireframe_[v])
+                int a;
+        }
     }
 
     bool TreeProcessing::split(Mesh::Vertex v) {
