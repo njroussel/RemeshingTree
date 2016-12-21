@@ -33,19 +33,24 @@ namespace mesh_processing {
     }
 
     bool TreeProcessing::is_trunk(Mesh::Vertex v) {
-        /* A vertex belong to the trunk if its color is red. */
-        Mesh::Vertex_property<surface_mesh::Color> v_color = mesh_.get_vertex_property<surface_mesh::Color>("v:color");
-        surface_mesh::Color c = v_color[v];
-        const float th = 0.2f;
-        /* Small threshold, in case colors blend. */
-        return c[1] <= th && c[2] <= th;
+        return get_trunk_index(v) != -1;
     }
 
-    Mesh::Vertex TreeProcessing::get_lowest_trunk_vertex(void) {
+    int TreeProcessing::get_trunk_index(Mesh::Vertex v) {
+        Mesh::Vertex_property<surface_mesh::Color> v_color = mesh_.get_vertex_property<surface_mesh::Color>("v:color");
+        for (int i = 0; i < MAX_TRUNK_COUNT; ++i) {
+            if (v_color[v] == trunk_colors[i]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    Mesh::Vertex TreeProcessing::get_lowest_trunk_vertex(const int trunk_idx) {
         Mesh::Vertex curr;
         float curr_height = FLT_MAX;
         for (Mesh::Vertex v : mesh_.vertices()) {
-            if (v_trunk_[v]) {
+            if (v_trunk_[v] && v_trunk_index_[v] == trunk_idx) {
                 float h = mesh_.position(v)[1];
                 if (h < curr_height) {
                     curr_height = h;
@@ -86,6 +91,7 @@ namespace mesh_processing {
         e_inwireframe_ = e_inwireframe;
         e_scale_ = e_scale;
         v_trunk_ = mesh_.vertex_property<bool>("v:is_trunk", false);
+        v_trunk_index_ = mesh_.vertex_property<int>("v:trunk_index", -1);
         v_abs_length_ = mesh_.vertex_property<float>("v:v_abslength", 0.0f);
         v_rel_length_ = mesh_.vertex_property<float>("v:v_rellength", 0.0f);
 
@@ -93,16 +99,33 @@ namespace mesh_processing {
         for (Mesh::Vertex v : mesh_.vertices()) {
             if (is_trunk(v)) {
                 v_trunk_[v] = true;
+                int idx = get_trunk_index(v);
+                v_trunk_index_[v] = idx; // TODO : Not optimal
+                if (idx != -1) {
+                    trunk_existing[idx] = true;
+                    DEBUG("Found trunk with id " << idx << " and color " << trunk_colors[idx]);
+                }
+                else {
+                    throw "Trunk as invalid index.";
+                }
             }
         }
 
         std::queue<branch_t> to_process;
         /* Initially the queue will contain only the lowest vertex of the
          * trunk from there the inner method does all the work. */
-        Mesh::Vertex start = get_lowest_trunk_vertex();
-        v_inwireframe_[start] = true;
+        Mesh::Vertex starting_vertices[MAX_TRUNK_COUNT];
+        for (int i = 0; i < MAX_TRUNK_COUNT; ++i) {
+            if (trunk_existing[i]) {
+                starting_vertices[i] = get_lowest_trunk_vertex(i);
+                v_inwireframe_[starting_vertices[i]] = true;
+                to_process.push({starting_vertices[i], starting_vertices[i]});
+            }
+        }
 
-        to_process.push({start, start});
+        if (to_process.empty()) {
+            throw "No trunk found !";
+        }
 
         /* Start the algo. */
         inner_fill(to_process);
@@ -199,7 +222,7 @@ namespace mesh_processing {
              * trunk. */
             for (Mesh::Vertex n : neighbors_cpy) {
                 if (v_trunk_[n]) {
-                    if (v_trunk_[current_vertex]) {
+                    if (v_trunk_[current_vertex] && v_trunk_index_[current_vertex] == v_trunk_index_[n]) {
                         /* We are allowed to continue our path on the trunk,
                          * iff we are on the trunk from the start. */
                         keep(n);

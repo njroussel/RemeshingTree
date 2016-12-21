@@ -10,6 +10,17 @@
 #define BETTER_ALGO 
 #define USE_STACK
 
+/* The limit in the number of trunk is set to 3 by default.
+ * The color for each trunk is defined below.
+ *
+ * This limitation of 3 trunks makes the algo a lot easier.
+ */
+#define MAX_TRUNK_COUNT 3
+#define TRUNK_RED 0
+#define TRUNK_GREEN 1
+#define TRUNK_BLUE 2
+
+
 namespace mesh_processing {
 
     /* Element of step. You will understant later. */
@@ -93,8 +104,14 @@ namespace mesh_processing {
              */
             bool is_trunk(Mesh::Vertex v);
 
-            /* Return the lowest trunk vertex. */
-            Mesh::Vertex get_lowest_trunk_vertex(void);
+            /* Returns the trunk index of the given vertex. */
+            int get_trunk_index(Mesh::Vertex v);
+
+            /* Return the lowest trunk vertex. 
+             * @param trunk_idx : the index of the trunk from which to retrieve
+             *  the lowest vertex.
+             */
+            Mesh::Vertex get_lowest_trunk_vertex(const int trunk_idx);
 
             /* Randomly decides if a given vertex can split or not. */ 
             bool split(Mesh::Vertex v);
@@ -143,5 +160,21 @@ namespace mesh_processing {
 
             /* true iff the vertex is in the trunk of the tree. */
             Mesh::Vertex_property<bool> v_trunk_;
+            /* Indice of the trunk, -1 if not in the trunk. */
+            Mesh::Vertex_property<int> v_trunk_index_;
+
+            /* Multiple trunks : */
+            const surface_mesh::Color trunk_colors[MAX_TRUNK_COUNT] = {
+                surface_mesh::Color(1, 0, 0),
+                surface_mesh::Color(0, 1, 0),
+                surface_mesh::Color(0, 0, 1)
+            };
+
+            /* Keeps track of which trunks exist. */
+            bool trunk_existing[MAX_TRUNK_COUNT] = {
+                false,
+                false,
+                false
+            };
     };
 }
