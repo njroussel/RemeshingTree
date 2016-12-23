@@ -1,8 +1,5 @@
 #include "mesh_processing/tree_processing.h"
 
-#define DEBUG(mesg) \
-    std::cout << "DEBUG : " << mesg << std::endl
-
 namespace mesh_processing {
     TreeProcessing::TreeProcessing(const std::string& filename,
             const std::string& sphere_filename,
@@ -47,9 +44,6 @@ namespace mesh_processing {
             if (approx_same_color(v_color[v], trunk_colors[i])) {
                 return i;
             }
-        }
-        if (v_color[v] != surface_mesh::Color(1, 1, 1)) {
-            DEBUG("Bogus color : " << v_color[v]);
         }
         return -1;
     }
@@ -117,10 +111,9 @@ namespace mesh_processing {
             if (is_trunk(v)) {
                 v_trunk_[v] = true;
                 int idx = get_trunk_index(v);
-                v_trunk_index_[v] = idx; // TODO : Not optimal
+                v_trunk_index_[v] = idx;
                 if (idx != -1) {
                     trunk_existing[idx] = true;
-                    DEBUG("Found trunk with id " << idx << " and color " << trunk_colors[idx]);
                 }
                 else {
                     throw "Trunk as invalid index.";
@@ -266,7 +259,6 @@ namespace mesh_processing {
                     ignore(n);
                 }
             }
-            neighbors_cpy = neighbors; /* Not necessary, but here to avoid forgetting it. */
 
             if (neighbors.size() == 0) {
                 /* If no neighbor is kept, then we stop, and goes with the next
@@ -390,6 +382,5 @@ namespace mesh_processing {
                 to_process.push({n, current_vertex});
             }
         }
-        DEBUG(total_splits_performed << " splits performed.");
     }
 }

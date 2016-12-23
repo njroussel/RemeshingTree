@@ -119,7 +119,7 @@ namespace mesh_processing {
             bool split(Mesh::Vertex v);
             
             /* Returns the two neighbors that form the best split as explained
-             * in the report part TODO.
+             * in the report.
              * @param v : the vertex on which to perform the split.
              * @param neighors : the list of neighbors to choose from.
              */
