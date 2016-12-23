@@ -23,7 +23,10 @@
 
 namespace mesh_processing {
 
-    /* Element of step. You will understant later. */
+    /* Element of step.
+     * Contains the current vertex as well as the last one so that we are
+     * able to compute the direction of the branch.
+     */
     typedef struct {
         Mesh::Vertex root;
         Mesh::Vertex last;

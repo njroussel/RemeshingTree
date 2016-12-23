@@ -34,6 +34,7 @@ namespace mesh_processing {
         return idx != -1 && draw_trunk_[idx];
     }
 
+    /* Returns true if colors are almost the same. */
     static bool approx_same_color(surface_mesh::Color c1, surface_mesh::Color c2) {
         return distance(c1, c2) < 1.0f;
     }
@@ -228,7 +229,8 @@ namespace mesh_processing {
              * over the copy. */
             std::vector<Mesh::Vertex> neighbors_cpy = neighbors;
 
-            /* To keep will be the result of filtering the set of neighbors. */
+            /* To keep will be the result of filtering the set of neighbors. 
+             * It is called 'next' in the pseudo code provided in the report.*/
             std::vector<Mesh::Vertex> to_keep;
 
             /* Deal with neighbors belonging to the trunk. Those ones are

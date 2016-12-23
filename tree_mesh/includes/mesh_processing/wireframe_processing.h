@@ -57,7 +57,7 @@ namespace mesh_processing {
              */
             void create_wire_frame(void);
 
-            /* Create a wireframe in which all vertices and edges are in the
+            /* Create a 'default' wireframe in which all vertices and edges are in the
              * wireframe, with fixed size.
              * @param sphere_size : The diameter of the sphere.
              * @param cylinder_diameter : The diameter of the cylinders.
